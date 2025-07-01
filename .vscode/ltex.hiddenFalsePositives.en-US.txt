@@ -1,0 +1,2 @@
+{"rule":"MISSING_COMMA_AFTER_YEAR","sentence":"^\\QMay 09, 2025 Fudan University, Topology seminar, \"Extensive Computations of the Adams Spectral Sequence \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q-Page at Odd Primes\"\\E$"}
+{"rule":"MISSING_COMMA_AFTER_YEAR","sentence":"^\\QMay 26, 2025 Zhejiang University, Geometry and Topology seminar, \"Extensive Computations of the Adams Spectral Sequence \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q-Page at Odd Primes\"\\E$"}
