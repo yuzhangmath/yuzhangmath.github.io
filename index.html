@@ -10,14 +10,21 @@
 
 <link rel="stylesheet" href="stylesheet.css">
 
+<!-- MathJax Configuration -->
 <script>
-MathJax = {
+window.MathJax = {
   tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']]
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']]
+  },
+  svg: {
+    fontCache: 'global'
   }
 };
 </script>
-<script src="MathJax.js"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>
 
 <style>
 /* Professional enhancements */
@@ -63,301 +70,297 @@ MathJax = {
 
 </head>
 <body>
-<div id="MathJax_Message" style="display: none;"></div>
 
-<div>
 <nav id="top"> 
 <p></p><ul>
 <li><a href="#Home">Home</a></li>
 <li><a href="#Research">Research</a></li>
-<li><a href="#AdamsCharts">Adams E₂ Charts</a></li>
+<li><a href="#AdamsCharts">Adams \(E_2\) Charts</a></li>
 <li><a href="#Publications">Publications</a></li>
 <li><a href="#Conference">Conference</a></li>
 <li><a href="#Lecture">Lecture</a></li>  
 <li><a href="#Teaching">Teaching</a></li>
 </ul><p></p>
 </nav>
-</div> 
 
 <div id="black-bar"></div>
 
-<div>
-<nav id="side"> 
-<img src="yu.JPG" alt="Yu Zhang - Tianjin University" width="240">
-<h1>Yu Zhang<br></h1>
-<p>
-<strong>E-mail</strong><br>
-zhangyumath@tju.edu.cn<br>
-<strong>Address</strong><br> 
-Center for Applied Mathematics<br>
-Tianjin University<br> 
-No.92 Weijin Road<br> 
-Tianjin 300072, P.R.China<br> 
-</p>
-</nav>
-</div> 
-
-<main>
-<div class="wrapper">
+<div class="layout-container">
   
-<br>
-<hr>
-<center>
-<a class="anchor" name="Home"></a>
-<h1>About Me</h1>
-</center>
-<hr>
-  
-<br><br>  
-  
-I am an Assistant Professor in the <a href="http://cam.tju.edu.cn">Center for Applied Mathematics</a> at Tianjin University, specializing in algebraic topology and homotopy theory. My name in Chinese is 张宇.
+  <nav id="side"> 
+    <img src="yu.JPG" alt="Yu Zhang - Tianjin University" width="240">
+    <h1>Yu Zhang<br></h1>
+    <p>
+    <strong>E-mail</strong><br>
+    zhangyumath@tju.edu.cn<br>
+    <strong>Address</strong><br> 
+    Center for Applied Mathematics<br>
+    Tianjin University<br> 
+    No.92 Weijin Road<br> 
+    Tianjin 300072, P.R.China<br> 
+    </p>
+  </nav>
 
-<br><br>  
+  <div class="wrapper">
+    
+    <br>
+    <hr>
+    <center>
+      <a class="anchor" name="Home"></a>
+      <h1>About Me</h1>
+    </center>
+    <hr>
+    
+    <br><br>  
+    
+    I am an Assistant Professor in the <a href="http://cam.tju.edu.cn">Center for Applied Mathematics</a> at Tianjin University, specializing in algebraic topology and homotopy theory. My name in Chinese is 张宇.
 
-My research focuses on computational aspects of stable homotopy theory, including Adams spectral sequences, stable homotopy groups of spheres, and higher algebraic structures. I develop and apply computational methods to solve problems in homotopy theory.
+    <br><br>  
 
-<br><br>  
-  
-<strong>Quick Links:</strong> 
-<a href="CV/cv.pdf">CV</a> | 
-<a href="ChineseCV/ChineseCV.pdf">中文简历</a> |
-<a href="#AdamsCharts">Adams E₂ Charts</a>
-  
-<br><br>  
-  
-<em>This homepage was last updated on Nov 1, 2025.</em>  
+    My research focuses on computational aspects of stable homotopy theory, including Adams spectral sequences, stable homotopy groups of spheres, and higher algebraic structures. I develop and apply computational methods to solve problems in homotopy theory.
 
-<br><br>    
-  
-<center><h3>Academic Positions</h3></center> 
-<ul style="list-style: none; padding-left: 0;">
-<li><strong>Assistant Professor</strong> (2023–present)<br>
-Tianjin University, Tianjin, China.</li>
-<br>
-<li><strong>Postdoctoral Researcher</strong> (2020–2023)<br>
-Nankai University, Tianjin, China.</li>
-</ul>
+    <br><br>  
+    
+    <strong>Quick Links:</strong> 
+    <a href="CV/cv.pdf">CV</a> | 
+    <a href="ChineseCV/ChineseCV.pdf">中文简历</a> |
+    <a href="#AdamsCharts">Adams \(E_2\) Charts</a>
+    
+    <br><br>  
+    
+    <em>This homepage was last updated on Nov 1, 2025.</em>  
 
-<center><h3>Education</h3></center> 
-<ul style="list-style: none; padding-left: 0;">
-<li><strong>Ph.D. in Mathematics</strong> (2014–2020)<br>
-The Ohio State University, Columbus, Ohio, USA<br>
-Dissertation Advisor: <a href="https://people.math.osu.edu/harper.903/">John E. Harper</a>
-</li>
-<br>
-<li><strong>B.S. in Mathematics</strong> (2010–2014)<br>
-Peking University, Beijing, China<br>
-Dissertation Advisor: <a href="https://imai.whu.edu.cn/info/1911/6081.htm">Huijun Fan</a>
-</li>
-</ul>
+    <br><br>    
+    
+    <center><h3>Academic Positions</h3></center> 
+    <ul style="list-style: none; padding-left: 0;">
+      <li><strong>Assistant Professor</strong> (2023–present)<br>
+      Tianjin University, Tianjin, China.</li>
+      <br>
+      <li><strong>Postdoctoral Researcher</strong> (2020–2023)<br>
+      Nankai University, Tianjin, China.</li>
+    </ul>
 
-<br><br>
-<hr>
-<center>
-<a class="anchor" name="Research"></a>
-<h1>Research Interests</h1>
-</center>
-<hr>
-  
-<br><br>  
-  
-My research program in algebraic topology focuses on:
+    <center><h3>Education</h3></center> 
+    <ul style="list-style: none; padding-left: 0;">
+      <li><strong>Ph.D. in Mathematics</strong> (2014–2020)<br>
+      The Ohio State University, Columbus, Ohio, USA<br>
+      Dissertation Advisor: <a href="https://people.math.osu.edu/harper.903/">John E. Harper</a>
+      </li>
+      <br>
+      <li><strong>B.S. in Mathematics</strong> (2010–2014)<br>
+      Peking University, Beijing, China<br>
+      Dissertation Advisor: <a href="https://imai.whu.edu.cn/info/1911/6081.htm">Huijun Fan</a>
+      </li>
+    </ul>
 
-<ul>
-<li><strong>Computational stable homotopy theory:</strong> Machine-assisted computations of Adams spectral sequences and stable homotopy groups of spheres at odd primes</li>
-<li><strong>Spectral sequences:</strong> Development, explicit computation, and applications of various spectral sequences in homotopy theory</li>
-<li><strong>Higher structures:</strong> Model categories and higher structures in stable homotopy theory</li>
-<li><strong>Structured ring spectra:</strong> Homotopy theory of structured ring spectra and their applications</li>
-</ul>
+    <br><br>
+    <hr>
+    <center>
+      <a class="anchor" name="Research"></a>
+      <h1>Research Interests</h1>
+    </center>
+    <hr>
+    
+    <br><br>  
+    
+    My research program in algebraic topology focuses on:
 
-<br>
+    <ul>
+      <li><strong>Computational stable homotopy theory:</strong> Machine-assisted computations of Adams spectral sequences and stable homotopy groups of spheres at odd primes</li>
+      <li><strong>Spectral sequences:</strong> Development, explicit computation, and applications of various spectral sequences in homotopy theory</li>
+      <li><strong>Higher structures:</strong> Model categories and higher structures in stable homotopy theory</li>
+      <li><strong>Structured ring spectra:</strong> Homotopy theory of structured ring spectra and their applications</li>
+    </ul>
 
-<strong>Current Research Focus:</strong> I am currently developing computational frameworks for Adams spectral sequence calculations at odd primes and creating interactive tools to visualize and explore the structure of Adams spectral sequences.
+    <br>
 
-<br><br>
-<hr>
-<center>
-<a class="anchor" name="AdamsCharts"></a>
-<h1>Adams E₂ Charts</h1>
-</center>
-<hr>
+    <strong>Current Research Focus:</strong> I am currently developing computational frameworks for Adams spectral sequence calculations at odd primes and creating interactive tools to visualize and explore the structure of Adams spectral sequences.
 
-<br><br>
+    <br><br>
+    <hr>
+    <center>
+      <a class="anchor" name="AdamsCharts"></a>
+      <h1>Adams \(E_2\) Charts</h1>
+    </center>
+    <hr>
 
-This interactive visualization displays the Adams Spectral Sequence E₂ page for the sphere S⁰ at odd primes. This is joint work in progress with Weinan Lin, and the visualization may be updated as our work progresses.
+    <br><br>
 
-<center>
-<a href="Adams_E2/unified_viewer.html" class="cta-button">
-    Launch Adams E₂ Charts
-</a>
-</center>
+    This interactive visualization displays the Adams Spectral Sequence \(E_2\) page for the sphere \(S^0\) at odd primes. This is joint work in progress with Weinan Lin, and the visualization may be updated as our work progresses.
 
-<strong>Features:</strong>
-<ul>
-<li>Interactive zoom and pan navigation</li>
-<li>Support for primes 3, 5, 7, and 11</li>
-<li>Visualization of product relationships with a₀ and h₀</li>
-</ul>
+    <center>
+      <a href="Adams_E2/unified_viewer.html" class="cta-button">
+          Launch Adams \(E_2\) Charts
+      </a>
+    </center>
 
-<br>
+    <strong>Features:</strong>
+    <ul>
+      <li>Interactive zoom and pan navigation</li>
+      <li>Support for primes 3, 5, 7, and 11</li>
+      <li>Visualization of product relationships with \(a_0\) and \(h_0\)</li>
+    </ul>
 
-<strong>Visualization Guide:</strong>
-<ul>
-<li><strong>Bullets:</strong> Represent additive basis elements in the E₂ page</li>
-<li><strong>Lines:</strong> Show multiplication by a₀ and h₀ (we display only these specific products)</li>
-<li><strong>Pan:</strong> Click and drag, or use arrow keys</li>
-<li><strong>Zoom:</strong> Mouse wheel, pinch gesture, or +/- keys</li>
-<li><strong>Select element:</strong> Click on any bullet to see its products highlighted in green</li>
-</ul>
+    <br>
 
-<br>
+    <strong>Visualization Guide:</strong>
+    <ul>
+      <li><strong>Bullets:</strong> Represent additive basis elements in the \(E_2\) page</li>
+      <li><strong>Lines:</strong> Show multiplication by \(a_0\) and \(h_0\) (we display only these specific products)</li>
+      <li><strong>Pan:</strong> Click and drag, or use arrow keys</li>
+      <li><strong>Zoom:</strong> Mouse wheel, pinch gesture, or +/- keys</li>
+      <li><strong>Select element:</strong> Click on any bullet to see its products highlighted in green</li>
+    </ul>
 
-<em>This visualization is based on recent machine-generated computational results from our ongoing research program.</em>
+    <br>
 
-<br><br>
-<hr>
-<center>
-<a class="anchor" name="Publications"></a>
-<h1>Publications</h1>
-</center>
-<hr>
-  
-<br><br>  
+    <em>This visualization is based on recent machine-generated computational results from our ongoing research program.</em>
 
-<div class="publication-list">
-<div class="publication-item">
-<strong>The secondary periodic element $\beta_{p^2/p^2-1}$ and its applications.</strong><br>
-<em>Joint with J. Hong and X. Wang.</em> Sci. China Math. 68, 207-222 (2025).<br>
-<a href="https://link.springer.com/epdf/10.1007/s11425-023-2251-3?sharing_token=PDVesQd0sOon0ARbyZfnYPe4RwlQNchNByi7wbcMAY4AolA_fhsNoLJpOSy0hNAlh1dJa53hKle5zSVEeoLgvGYkVBPrH6juqEC9cTEXyUQlStKLSBCShScC8YQheTE6Z9VDG8RITv2Nn_J1E2DWs5iOAK2-7GHLFOIVGm7e1OE%3D">SharedIt link</a> | <a href="https://link.springer.com/article/10.1007/s11425-023-2251-3#article-info">journal</a> 
+    <br><br>
+    <hr>
+    <center>
+      <a class="anchor" name="Publications"></a>
+      <h1>Publications</h1>
+    </center>
+    <hr>
+    
+    <br><br>  
+
+    <div class="publication-list">
+      <div class="publication-item">
+        <strong>The secondary periodic element \(\beta_{p^2/p^2-1}\) and its applications.</strong><br>
+        <em>Joint with J. Hong and X. Wang.</em> Sci. China Math. 68, 207-222 (2025).<br>
+        <a href="https://link.springer.com/epdf/10.1007/s11425-023-2251-3?sharing_token=PDVesQd0sOon0ARbyZfnYPe4RwlQNchNByi7wbcMAY4AolA_fhsNoLJpOSy0hNAlh1dJa53hKle5zSVEeoLgvGYkVBPrH6juqEC9cTEXyUQlStKLSBCShScC8YQheTE6Z9VDG8RITv2Nn_J1E2DWs5iOAK2-7GHLFOIVGm7e1OE%3D">SharedIt link</a> | <a href="https://link.springer.com/article/10.1007/s11425-023-2251-3#article-info">journal</a> 
+      </div>
+
+      <div class="publication-item">
+        <strong>Detecting nontrivial products in the stable homotopy ring of spheres via the third Morava stabilizer algebra.</strong><br>
+        <em>Joint with X. Wang, J. Wu, and L. Zhong.</em> Proc. Amer. Math. Soc. 152 (2024), 4521-4536.<br>
+        <a href="morava.pdf">pdf</a> | <a href="https://www.ams.org/journals/proc/2024-152-10/S0002-9939-2024-16891-X/home.html">journal</a> 
+      </div>
+
+      <div class="publication-item">
+        <strong>A correspondence between higher Adams differentials and higher algebraic Novikov differentials at odd primes.</strong><br>
+        <em>Joint with X. Wang.</em> Proc. Amer. Math. Soc. 151 (2023), 5087-5096.<br>
+        <a href="motivic_adams.pdf">pdf</a> | <a href="https://www.ams.org/journals/proc/2023-151-12/S0002-9939-2023-16513-2/home.html">journal</a> 
+      </div>
+
+      <div class="publication-item">
+        <strong>The \(p\)-primary subgroup of the cohomology of \(BPU_n\) in dimension \(2p+6\).</strong><br>
+        <em>Joint with Z. Zhang, L. Zhong.</em> Topology Appl. 338 (2023): 108642.<br>
+        <a href="BPUn2.pdf">pdf</a> | <a href="https://www.sciencedirect.com/science/article/abs/pii/S0166864123002365">journal</a> 
+      </div>
+
+      <div class="publication-item">
+        <strong>Some nontrivial secondary Adams differentials on the fourth line.</strong><br>
+        <em>Joint with X. Wang and Y. Wang.</em> New York J. Math. 29 (2023) 687-707.<br>
+        <a href="adamsd2.pdf">pdf</a> | <a href="http://nyjm.albany.edu/j/2023/29-27.html">journal</a> 
+      </div>
+
+      <div class="publication-item">
+        <strong>Homotopy pro-nilpotent structured ring spectra and topological Quillen localization.</strong><br>
+        J. Homotopy Relat. Struct. 17, 511-523 (2022).<br>
+        <a href="homotopy_pro_nilpotent.pdf">pdf</a> | <a href="https://link.springer.com/epdf/10.1007/s40062-022-00316-9?sharing_token=gcvTT1tRg0GGXS55gd2fUfe4RwlQNchNByi7wbcMAY4awx7haIanIJyqxblzwo5AF0LzR-jBrP-kuU-Ae9DT7lLhiPJqD6BUoGe0_WAw7EBFNIWNoN6AQ-83aUuTrJ5yrTkAac_M1FzFN-bRcq5MJbaKS7_x8GS1IA7efi7q1Qs%3D">SharedIt link</a> | <a href="https://link.springer.com/article/10.1007/s40062-022-00316-9">journal</a> 
+      </div>
+
+      <div class="publication-item">
+        <strong>The \(p\)-primary subgroups of the cohomology of \(BPU_n\) in dimensions less than \(2p+5\).</strong><br>
+        <em>Joint with X. Gu, Z. Zhang and L. Zhong.</em> Proc. Amer. Math. Soc. 150 (2022), 4099-4111.<br>
+        <a href="BPUn.pdf">pdf</a> | <a href="https://www.ams.org/journals/proc/2022-150-09/S0002-9939-2022-16000-6/home.html">journal</a>
+      </div>
+
+      <div class="publication-item">
+        <strong>Topological Quillen localization of structured ring spectra.</strong><br>
+        <em>Joint with J. Harper.</em> Tbilisi Mathematical Journal 12(3):69-91, 2019.<br>
+        <a href="TQLocalization.pdf">pdf</a> | <a href="https://projecteuclid.org/euclid.tbilisi/1569463235">journal</a>    
+      </div>
+    </div>
+
+    <br><br>
+    <hr>
+    <center>
+      <a class="anchor" name="Conference"></a>
+      <h1>Conference</h1>
+    </center>
+    <hr>
+    
+    <center><h3><a href="23conference/23conference.html">2023 Topology and its Applications Conference</a></h3></center>  
+    
+    We are pleased to announce the upcoming 2023 Topology and its Applications Conference, scheduled from May 12 to May 16 at Nankai University in Tianjin.
+    
+    <br><br>
+    
+    Algebraic topology, an important branch of mathematics, has witnessed significant progress in recent years. Topology has also found useful applications in fields such as chemical compounds, biological proteins, and social networks for data analysis. This conference aims to bring together distinguished experts in the field of topology and applied topology, promoting the development of topological applications and providing a platform for sharing insights and research findings on the latest advancements in this area.
+    
+    <br><br>
+    
+    For further information about the conference, please visit the <a href="23conference/23conference.html">conference website</a>. 
+   
+    <br><br>
+    
+    <br>
+    <hr>
+    <center>
+      <a class="anchor" name="Lecture"></a>
+      <h1>Lecture</h1>
+    </center>
+    <hr> 
+    
+    <center><h3>An intuitive introduction to motivic homotopy theory</h3></center>
+
+    In May and June of 2021, I gave an online lecture series on motivic homotopy theory. This is intended to be a leisure introduction to the most basic setup and relevant concepts in motivic homotopy theory, from a homotopy theorist's point of view.
+
+    <br><br>
+
+    <strong>Lecture Materials:</strong>
+    <ul>
+      <li>Lecture 1: Overview, Category theory, and Simplicial sets. <a href="intuitive_motivic/Lec01.pdf">Slides</a></li>
+      <li>Lecture 2: Model category. <a href="intuitive_motivic/Lec02.pdf">Slides</a></li>
+      <li>Lecture 3: Scheme. <a href="intuitive_motivic/Lec03.pdf">Slides</a></li>
+      <li>Lecture 4: Unstable motivic homotopy theory. <a href="intuitive_motivic/Lec04.pdf">Slides</a></li>
+      <li>Lecture 5: Stable motivic homotopy theory. <a href="intuitive_motivic/Lec05.pdf">Slides</a></li>
+    </ul>
+
+    Videos of the lectures are available for download <a href="https://wwr.lanzoui.com/b02c3ofah">here</a>. Password: hny3
+   
+    <br><br>
+    
+    The lectures were given in Chinese. 
+    
+    <br><br>
+
+    <br>
+    <hr>
+    <center>
+      <a class="anchor" name="Teaching"></a>
+      <h1>Teaching</h1>
+    </center>
+    <hr>
+
+    <h3>As instructor at TJU</h3>
+    <ul>
+      <li><strong>Calculus I</strong>, Autumn 2024.</li>
+    </ul>
+
+    <h3>As instructor at NKU</h3>
+    <ul>
+      <li><strong><a href="SP22/SP22.html">Probability and Statistics for Liberal Arts</a></strong>, Spring 2022.</li>
+      <li><strong><a href="AU21/AU21.html">Advanced Mathematics for Liberal Arts</a></strong>, Autumn 2021.</li>
+    </ul>
+
+    <h3>As graduate teaching associate at OSU</h3>
+    <ul>
+      <li><strong><a href="AU18/AU18.html">Math 2177</a></strong>: Mathematical Topics for Engineers, Autumn 2018.</li>
+      <li><strong>Math 1172</strong>: Engineering Mathematics A, Autumn 2017.</li>
+      <li><strong>Math 1172</strong>: Engineering Mathematics A, Autumn 2016.</li>
+      <li><strong>Math 1152</strong>: Calculus II, Spring 2016.</li>
+    </ul>
+
+    <br><br><br>
+
+  </div>
 </div>
-
-<div class="publication-item">
-<strong>Detecting nontrivial products in the stable homotopy ring of spheres via the third Morava stabilizer algebra.</strong><br>
-<em>Joint with X. Wang, J. Wu, and L. Zhong.</em> Proc. Amer. Math. Soc. 152 (2024), 4521-4536.<br>
-<a href="morava.pdf">pdf</a> | <a href="https://www.ams.org/journals/proc/2024-152-10/S0002-9939-2024-16891-X/home.html">journal</a> 
-</div>
-
-<div class="publication-item">
-<strong>A correspondence between higher Adams differentials and higher algebraic Novikov differentials at odd primes.</strong><br>
-<em>Joint with X. Wang.</em> Proc. Amer. Math. Soc. 151 (2023), 5087-5096.<br>
-<a href="motivic_adams.pdf">pdf</a> | <a href="https://www.ams.org/journals/proc/2023-151-12/S0002-9939-2023-16513-2/home.html">journal</a> 
-</div>
-
-<div class="publication-item">
-<strong>The p-primary subgroup of the cohomology of BPUn in dimension 2p+6.</strong><br>
-<em>Joint with Z. Zhang, L. Zhong.</em> Topology Appl. 338 (2023): 108642.<br>
-<a href="BPUn2.pdf">pdf</a> | <a href="https://www.sciencedirect.com/science/article/abs/pii/S0166864123002365">journal</a> 
-</div>
-
-<div class="publication-item">
-<strong>Some nontrivial secondary Adams differentials on the fourth line.</strong><br>
-<em>Joint with X. Wang and Y. Wang.</em> New York J. Math. 29 (2023) 687-707.<br>
-<a href="adamsd2.pdf">pdf</a> | <a href="http://nyjm.albany.edu/j/2023/29-27.html">journal</a> 
-</div>
-
-<div class="publication-item">
-<strong>Homotopy pro-nilpotent structured ring spectra and topological Quillen localization.</strong><br>
-J. Homotopy Relat. Struct. 17, 511-523 (2022).<br>
-<a href="homotopy_pro_nilpotent.pdf">pdf</a> | <a href="https://link.springer.com/epdf/10.1007/s40062-022-00316-9?sharing_token=gcvTT1tRg0GGXS55gd2fUfe4RwlQNchNByi7wbcMAY4awx7haIanIJyqxblzwo5AF0LzR-jBrP-kuU-Ae9DT7lLhiPJqD6BUoGe0_WAw7EBFNIWNoN6AQ-83aUuTrJ5yrTkAac_M1FzFN-bRcq5MJbaKS7_x8GS1IA7efi7q1Qs%3D">SharedIt link</a> | <a href="https://link.springer.com/article/10.1007/s40062-022-00316-9">journal</a> 
-</div>
-
-<div class="publication-item">
-<strong>The p-primary subgroups of the cohomology of BPUn in dimensions less than 2p+5.</strong><br>
-<em>Joint with X. Gu, Z. Zhang and L. Zhong.</em> Proc. Amer. Math. Soc. 150 (2022), 4099-4111.<br>
-<a href="BPUn.pdf">pdf</a> | <a href="https://www.ams.org/journals/proc/2022-150-09/S0002-9939-2022-16000-6/home.html">journal</a>
-</div>
-
-<div class="publication-item">
-<strong>Topological Quillen localization of structured ring spectra.</strong><br>
-<em>Joint with J. Harper.</em> Tbilisi Mathematical Journal 12(3):69-91, 2019.<br>
-<a href="TQLocalization.pdf">pdf</a> | <a href="https://projecteuclid.org/euclid.tbilisi/1569463235">journal</a>    
-</div>
-</div>
-
-<br><br>
-<hr>
-<center>
-<a class="anchor" name="Conference"></a>
-<h1>Conference</h1>
-</center>
-<hr>
-  
-<center><h3><a href="23conference/23conference.html">2023 Topology and its Applications Conference</a></h3></center>  
-  
-We are pleased to announce the upcoming 2023 Topology and its Applications Conference, scheduled from May 12 to May 16 at Nankai University in Tianjin.
-  
-<br><br>
-  
-Algebraic topology, an important branch of mathematics, has witnessed significant progress in recent years. Topology has also found useful applications in fields such as chemical compounds, biological proteins, and social networks for data analysis. This conference aims to bring together distinguished experts in the field of topology and applied topology, promoting the development of topological applications and providing a platform for sharing insights and research findings on the latest advancements in this area.
-  
-<br><br>
-  
-For further information about the conference, please visit the <a href="23conference/23conference.html">conference website</a>. 
- 
-<br><br>
-  
-<br>
-<hr>
-<center>
-<a class="anchor" name="Lecture"></a>
-<h1>Lecture</h1>
-</center>
-<hr> 
-  
-<center><h3>An intuitive introduction to motivic homotopy theory</h3></center>
-
-In May and June of 2021, I gave an online lecture series on motivic homotopy theory. This is intended to be a leisure introduction to the most basic setup and relevant concepts in motivic homotopy theory, from a homotopy theorist's point of view.
-
-<br><br>
-
-<strong>Lecture Materials:</strong>
-<ul>
-<li>Lecture 1: Overview, Category theory, and Simplicial sets. <a href="intuitive_motivic/Lec01.pdf">Slides</a></li>
-<li>Lecture 2: Model category. <a href="intuitive_motivic/Lec02.pdf">Slides</a></li>
-<li>Lecture 3: Scheme. <a href="intuitive_motivic/Lec03.pdf">Slides</a></li>
-<li>Lecture 4: Unstable motivic homotopy theory. <a href="intuitive_motivic/Lec04.pdf">Slides</a></li>
-<li>Lecture 5: Stable motivic homotopy theory. <a href="intuitive_motivic/Lec05.pdf">Slides</a></li>
-</ul>
-
-Videos of the lectures are available for download <a href="https://wwr.lanzoui.com/b02c3ofah">here</a>. Password: hny3
- 
-<br><br>
-  
-The lectures were given in Chinese. 
-  
-<br><br>
-
-<br>
-<hr>
-<center>
-<a class="anchor" name="Teaching"></a>
-<h1>Teaching</h1>
-</center>
-<hr>
-
-<h3>As instructor at TJU</h3>
-<ul>
-<li><strong>Calculus I</strong>, Autumn 2024.</li>
-</ul>
-
-<h3>As instructor at NKU</h3>
-<ul>
-<li><strong><a href="SP22/SP22.html">Probability and Statistics for Liberal Arts</a></strong>, Spring 2022.</li>
-<li><strong><a href="AU21/AU21.html">Advanced Mathematics for Liberal Arts</a></strong>, Autumn 2021.</li>
-</ul>
-
-<h3>As graduate teaching associate at OSU</h3>
-<ul>
-<li><strong><a href="AU18/AU18.html">Math 2177</a></strong>: Mathematical Topics for Engineers, Autumn 2018.</li>
-<li><strong>Math 1172</strong>: Engineering Mathematics A, Autumn 2017.</li>
-<li><strong>Math 1172</strong>: Engineering Mathematics A, Autumn 2016.</li>
-<li><strong>Math 1152</strong>: Calculus II, Spring 2016.</li>
-</ul>
-
-<br><br><br>
-
-</div>
-</main>
 
 </body>
 </html>
