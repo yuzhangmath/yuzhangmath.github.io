@@ -6,11 +6,10 @@
 <title>Yu Zhang - TJU Homepage</title>
 
 <meta name="description" content="Yu Zhang - Tianjin University Homepage">
-<meta name="keywords" content="yu zhang, zhang yu, ohio state, osu, nankai, nku, homotopy, tju, Tianjin University">
+<meta name="keywords" content="yu zhang, algebraic topology, homotopy theory, adams spectral sequence, stable homotopy groups, tianjin university, computational mathematics">
 
 <link rel="stylesheet" href="stylesheet.css">
 
-<!-- Simplified MathJax Configuration -->
 <script>
 MathJax = {
   tex: {
@@ -19,6 +18,48 @@ MathJax = {
 };
 </script>
 <script src="MathJax.js"></script>
+
+<style>
+/* Professional enhancements */
+.publication-list { 
+    list-style: none; 
+    padding-left: 0; 
+    margin-left: 0; 
+}
+.publication-item { 
+    margin-bottom: 1.5em; 
+    padding-bottom: 1em; 
+    border-bottom: 1px solid #f0f0f0; 
+}
+.highlight-box {
+    background: #f8f9fa;
+    border-left: 4px solid #3879d9;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 4px;
+}
+.cta-button {
+    font-size: 18px; 
+    padding: 14px 28px; 
+    background: #3879d9 !important; 
+    color: #ffffff !important; 
+    text-decoration: none !important; 
+    border-radius: 6px; 
+    display: inline-block; 
+    margin: 15px 0;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+.cta-button:hover {
+    background: #2c5aa0 !important;
+    color: #ffffff !important;
+}
+.section-icon {
+    font-size: 1.2em;
+    margin-right: 8px;
+}
+</style>
 
 </head>
 <body>
@@ -29,9 +70,10 @@ MathJax = {
 <p></p><ul>
 <li><a href="#Home">Home</a></li>
 <li><a href="#Research">Research</a></li>
+<li><a href="#AdamsCharts">Adams E₂ Charts</a></li>
+<li><a href="#Publications">Publications</a></li>
 <li><a href="#Conference">Conference</a></li>
 <li><a href="#Lecture">Lecture</a></li>  
-<li><a href="#Visualization">Visualization</a></li> 
 <li><a href="#Teaching">Teaching</a></li>
 </ul><p></p>
 </nav>
@@ -41,7 +83,7 @@ MathJax = {
 
 <div>
 <nav id="side"> 
-<img src="yu.JPG" alt="Yu Zhang" width="240">
+<img src="yu.JPG" alt="Yu Zhang - Tianjin University" width="240">
 <h1>Yu Zhang<br></h1>
 <p>
 <strong>E-mail</strong><br>
@@ -68,41 +110,44 @@ Tianjin 300072, P.R.China<br>
   
 <br><br>  
   
-My name in Chinese is 张宇.
-  
-<br><br>  
-
-I am currently an Assistant Professor at the <a href="http://cam.tju.edu.cn">Center for Applied Mathematics</a>, Tianjin University.
+I am an Assistant Professor in the <a href="http://cam.tju.edu.cn">Center for Applied Mathematics</a> at Tianjin University, specializing in algebraic topology and homotopy theory. My name in Chinese is 张宇.
 
 <br><br>  
-  
-My primary research focuses on algebraic topology, specifically in homotopy theory.
+
+My research focuses on computational aspects of stable homotopy theory, including Adams spectral sequences, stable homotopy groups of spheres, and higher algebraic structures. I develop and apply computational methods to solve problems in homotopy theory.
 
 <br><br>  
   
-For more detailed information about my background, please refer to my <a href="CV/cv.pdf">CV</a>, <a href="ChineseCV/ChineseCV.pdf">中文简历</a>.
+<strong>Quick Links:</strong> 
+<a href="CV/cv.pdf">CV</a> | 
+<a href="ChineseCV/ChineseCV.pdf">中文简历</a> |
+<a href="#AdamsCharts">Adams E₂ Charts</a>
   
 <br><br>  
   
-This homepage was last updated on March 30, 2025.  
+<em>This homepage was last updated on Nov 1, 2025.</em>  
 
 <br><br>    
   
-<center><h3>Employment</h3></center> 
+<center><h3>Academic Positions</h3></center> 
 <ul style="list-style: none; padding-left: 0;">
-<li><strong>Assistant Professor</strong> (2023–present), Tianjin University, Tianjin, China.</li>
+<li><strong>Assistant Professor</strong> (2023–present)<br>
+Tianjin University, Tianjin, China.</li>
 <br>
-<li><strong>Postdoctoral Researcher</strong> (2020–2023), Nankai University, Tianjin, China.</li>
+<li><strong>Postdoctoral Researcher</strong> (2020–2023)<br>
+Nankai University, Tianjin, China.</li>
 </ul>
 
 <center><h3>Education</h3></center> 
 <ul style="list-style: none; padding-left: 0;">
-<li><strong>The Ohio State University</strong> (2014–2020), Columbus, Ohio, USA<br>
-Ph.D. in Mathematics, Dissertation Advisor: <a href="https://people.math.osu.edu/harper.903/">John E. Harper</a>
+<li><strong>Ph.D. in Mathematics</strong> (2014–2020)<br>
+The Ohio State University, Columbus, Ohio, USA<br>
+Dissertation Advisor: <a href="https://people.math.osu.edu/harper.903/">John E. Harper</a>
 </li>
 <br>
-<li><strong>Peking University</strong> (2010–2014), Beijing, China<br>
-B.S. in Mathematics, Dissertation Advisor: <a href="https://www.math.pku.edu.cn/jsdw/js_20180628175159671361/f_20180628175159671361/69901.htm">Huijun Fan</a>
+<li><strong>B.S. in Mathematics</strong> (2010–2014)<br>
+Peking University, Beijing, China<br>
+Dissertation Advisor: <a href="https://imai.whu.edu.cn/info/1911/6081.htm">Huijun Fan</a>
 </li>
 </ul>
 
@@ -110,60 +155,126 @@ B.S. in Mathematics, Dissertation Advisor: <a href="https://www.math.pku.edu.cn/
 <hr>
 <center>
 <a class="anchor" name="Research"></a>
-<h1>Research</h1>
+<h1>Research Interests</h1>
 </center>
 <hr>
   
 <br><br>  
   
-Research Area: Algebraic Topology. I am particularly focused on (a) computations aimed at understanding the stable homotopy groups of spheres, (b) the theory of model categories and higher categories, and (c) the study of higher structures in spaces and ring spectra. Recently, I have been conducting computer-assisted computations of the Adams spectral sequences at odd primes.
+My research program in algebraic topology focuses on:
+
+<ul>
+<li><strong>Computational stable homotopy theory:</strong> Machine-assisted computations of Adams spectral sequences and stable homotopy groups of spheres at odd primes</li>
+<li><strong>Spectral sequences:</strong> Development, explicit computation, and applications of various spectral sequences in homotopy theory</li>
+<li><strong>Higher structures:</strong> Model categories and higher structures in stable homotopy theory</li>
+<li><strong>Structured ring spectra:</strong> Homotopy theory of structured ring spectra and their applications</li>
+</ul>
+
+<br>
+
+<strong>Current Research Focus:</strong> I am currently developing computational frameworks for Adams spectral sequence calculations at odd primes and creating interactive tools to visualize and explore the structure of Adams spectral sequences.
+
+<br><br>
+<hr>
+<center>
+<a class="anchor" name="AdamsCharts"></a>
+<h1>Adams E₂ Charts</h1>
+</center>
+<hr>
+
+<br><br>
+
+This interactive visualization displays the Adams Spectral Sequence E₂ page for the sphere S⁰ at odd primes. This is joint work in progress with Weinan Lin, and the visualization may be updated as our work progresses.
+
+<center>
+<a href="Adams_E2/unified_viewer.html" class="cta-button">
+    Launch Adams E₂ Charts
+</a>
+</center>
+
+<strong>Features:</strong>
+<ul>
+<li>Interactive zoom and pan navigation</li>
+<li>Support for primes 3, 5, 7, and 11</li>
+<li>Visualization of product relationships with a₀ and h₀</li>
+</ul>
+
+<br>
+
+<strong>Visualization Guide:</strong>
+<ul>
+<li><strong>Bullets:</strong> Represent additive basis elements in the E₂ page</li>
+<li><strong>Lines:</strong> Show multiplication by a₀ and h₀ (we display only these specific products)</li>
+<li><strong>Pan:</strong> Click and drag, or use arrow keys</li>
+<li><strong>Zoom:</strong> Mouse wheel, pinch gesture, or +/- keys</li>
+<li><strong>Select element:</strong> Click on any bullet to see its products highlighted in green</li>
+</ul>
+
+<br>
+
+<em>This visualization is based on recent machine-generated computational results from our ongoing research program.</em>
+
+<br><br>
+<hr>
+<center>
+<a class="anchor" name="Publications"></a>
+<h1>Publications</h1>
+</center>
+<hr>
   
 <br><br>  
-  
-<center><h3>Publications/Preprints</h3></center>
 
-<ul style="list-style: none; padding-left: 0;">
-<li><strong>The secondary periodic element $\beta_{p^2/p^2-1}$ and its applications.</strong><br> 
-(joint with J. Hong and X. Wang). Sci. China Math. 68, 207-222 (2025). <a href="https://link.springer.com/epdf/10.1007/s11425-023-2251-3?sharing_token=PDVesQd0sOon0ARbyZfnYPe4RwlQNchNByi7wbcMAY4AolA_fhsNoLJpOSy0hNAlh1dJa53hKle5zSVEeoLgvGYkVBPrH6juqEC9cTEXyUQlStKLSBCShScC8YQheTE6Z9VDG8RITv2Nn_J1E2DWs5iOAK2-7GHLFOIVGm7e1OE%3D">SharedIt link</a> / <a href="https://link.springer.com/article/10.1007/s11425-023-2251-3#article-info">journal</a> 
-</li>  
-<br>
+<div class="publication-list">
+<div class="publication-item">
+<strong>The secondary periodic element $\beta_{p^2/p^2-1}$ and its applications.</strong><br>
+<em>Joint with J. Hong and X. Wang.</em> Sci. China Math. 68, 207-222 (2025).<br>
+<a href="https://link.springer.com/epdf/10.1007/s11425-023-2251-3?sharing_token=PDVesQd0sOon0ARbyZfnYPe4RwlQNchNByi7wbcMAY4AolA_fhsNoLJpOSy0hNAlh1dJa53hKle5zSVEeoLgvGYkVBPrH6juqEC9cTEXyUQlStKLSBCShScC8YQheTE6Z9VDG8RITv2Nn_J1E2DWs5iOAK2-7GHLFOIVGm7e1OE%3D">SharedIt link</a> | <a href="https://link.springer.com/article/10.1007/s11425-023-2251-3#article-info">journal</a> 
+</div>
 
-<li><strong>Detecting nontrivial products in the stable homotopy ring of spheres via the third Morava stabilizer algebra.</strong><br> 
-(joint with X. Wang, J. Wu, and L. Zhong). Proc. Amer. Math. Soc. 152 (2024), 4521-4536. <a href="morava.pdf">pdf</a> / <a href="https://www.ams.org/journals/proc/2024-152-10/S0002-9939-2024-16891-X/home.html">journal</a> 
-</li>  
-<br>
+<div class="publication-item">
+<strong>Detecting nontrivial products in the stable homotopy ring of spheres via the third Morava stabilizer algebra.</strong><br>
+<em>Joint with X. Wang, J. Wu, and L. Zhong.</em> Proc. Amer. Math. Soc. 152 (2024), 4521-4536.<br>
+<a href="morava.pdf">pdf</a> | <a href="https://www.ams.org/journals/proc/2024-152-10/S0002-9939-2024-16891-X/home.html">journal</a> 
+</div>
 
-<li><strong>A correspondence between higher Adams differentials and higher algebraic Novikov differentials at odd primes.</strong><br> 
-(joint with X. Wang). Proc. Amer. Math. Soc. 151 (2023), 5087-5096. <a href="motivic_adams.pdf">pdf</a> / <a href="https://www.ams.org/journals/proc/2023-151-12/S0002-9939-2023-16513-2/home.html">journal</a> 
-</li>  
-<br>
+<div class="publication-item">
+<strong>A correspondence between higher Adams differentials and higher algebraic Novikov differentials at odd primes.</strong><br>
+<em>Joint with X. Wang.</em> Proc. Amer. Math. Soc. 151 (2023), 5087-5096.<br>
+<a href="motivic_adams.pdf">pdf</a> | <a href="https://www.ams.org/journals/proc/2023-151-12/S0002-9939-2023-16513-2/home.html">journal</a> 
+</div>
 
-<li><strong>The p-primary subgroup of the cohomology of BPUn in dimension 2p+6.</strong><br> 
-(joint with Z. Zhang, L. Zhong). Topology Appl. 338 (2023): 108642. <a href="BPUn2.pdf">pdf</a> / <a href="https://www.sciencedirect.com/science/article/abs/pii/S0166864123002365">journal</a> 
-</li>  
-<br>
+<div class="publication-item">
+<strong>The p-primary subgroup of the cohomology of BPUn in dimension 2p+6.</strong><br>
+<em>Joint with Z. Zhang, L. Zhong.</em> Topology Appl. 338 (2023): 108642.<br>
+<a href="BPUn2.pdf">pdf</a> | <a href="https://www.sciencedirect.com/science/article/abs/pii/S0166864123002365">journal</a> 
+</div>
 
-<li><strong>Some nontrivial secondary Adams differentials on the fourth line.</strong><br> 
-(joint with X. Wang and Y. Wang). New York J. Math. 29 (2023) 687-707. <a href="adamsd2.pdf">pdf</a> / <a href="http://nyjm.albany.edu/j/2023/29-27.html">journal</a> 
-</li>    
-<br>
+<div class="publication-item">
+<strong>Some nontrivial secondary Adams differentials on the fourth line.</strong><br>
+<em>Joint with X. Wang and Y. Wang.</em> New York J. Math. 29 (2023) 687-707.<br>
+<a href="adamsd2.pdf">pdf</a> | <a href="http://nyjm.albany.edu/j/2023/29-27.html">journal</a> 
+</div>
 
-<li><strong>Homotopy pro-nilpotent structured ring spectra and topological Quillen localization.</strong><br> 
-J. Homotopy Relat. Struct. 17, 511-523 (2022). <a href="homotopy_pro_nilpotent.pdf">pdf</a> / <a href="https://link.springer.com/epdf/10.1007/s40062-022-00316-9?sharing_token=gcvTT1tRg0GGXS55gd2fUfe4RwlQNchNByi7wbcMAY4awx7haIanIJyqxblzwo5AF0LzR-jBrP-kuU-Ae9DT7lLhiPJqD6BUoGe0_WAw7EBFNIWNoN6AQ-83aUuTrJ5yrTkAac_M1FzFN-bRcq5MJbaKS7_x8GS1IA7efi7q1Qs%3D">SharedIt link</a> / <a href="https://link.springer.com/article/10.1007/s40062-022-00316-9">journal</a> 
-</li>
-<br>
+<div class="publication-item">
+<strong>Homotopy pro-nilpotent structured ring spectra and topological Quillen localization.</strong><br>
+J. Homotopy Relat. Struct. 17, 511-523 (2022).<br>
+<a href="homotopy_pro_nilpotent.pdf">pdf</a> | <a href="https://link.springer.com/epdf/10.1007/s40062-022-00316-9?sharing_token=gcvTT1tRg0GGXS55gd2fUfe4RwlQNchNByi7wbcMAY4awx7haIanIJyqxblzwo5AF0LzR-jBrP-kuU-Ae9DT7lLhiPJqD6BUoGe0_WAw7EBFNIWNoN6AQ-83aUuTrJ5yrTkAac_M1FzFN-bRcq5MJbaKS7_x8GS1IA7efi7q1Qs%3D">SharedIt link</a> | <a href="https://link.springer.com/article/10.1007/s40062-022-00316-9">journal</a> 
+</div>
 
-<li><strong>The p-primary subgroups of the cohomology of BPUn in dimensions less than 2p+5.</strong><br> 
-(joint with X. Gu, Z. Zhang and L. Zhong). Proc. Amer. Math. Soc. 150 (2022), 4099-4111. <a href="BPUn.pdf">pdf</a> / <a href="https://www.ams.org/journals/proc/2022-150-09/S0002-9939-2022-16000-6/home.html">journal</a>
-</li>
-<br>
+<div class="publication-item">
+<strong>The p-primary subgroups of the cohomology of BPUn in dimensions less than 2p+5.</strong><br>
+<em>Joint with X. Gu, Z. Zhang and L. Zhong.</em> Proc. Amer. Math. Soc. 150 (2022), 4099-4111.<br>
+<a href="BPUn.pdf">pdf</a> | <a href="https://www.ams.org/journals/proc/2022-150-09/S0002-9939-2022-16000-6/home.html">journal</a>
+</div>
 
-<li><strong>Topological Quillen localization of structured ring spectra.</strong><br> 
-(joint with J. Harper). Tbilisi Mathematical Journal 12(3):69-91, 2019. <a href="TQLocalization.pdf">pdf</a> / <a href="https://projecteuclid.org/euclid.tbilisi/1569463235">journal</a>    
-</li>
-</ul>
-  
-<br>
+<div class="publication-item">
+<strong>Topological Quillen localization of structured ring spectra.</strong><br>
+<em>Joint with J. Harper.</em> Tbilisi Mathematical Journal 12(3):69-91, 2019.<br>
+<a href="TQLocalization.pdf">pdf</a> | <a href="https://projecteuclid.org/euclid.tbilisi/1569463235">journal</a>    
+</div>
+</div>
+
+<br><br>
 <hr>
 <center>
 <a class="anchor" name="Conference"></a>
@@ -214,54 +325,7 @@ Videos of the lectures are available for download <a href="https://wwr.lanzoui.c
   
 The lectures were given in Chinese. 
   
-<br><br>  
-  
-
 <br><br>
-<hr>
-<center>
-<a class="anchor" name="Visualization"></a>
-<h1>Adams Spectral Sequence Visualization</h1>
-</center>
-<hr>
-
-<br><br>
-
-This interactive visualization displays the Adams Spectral Sequence E₂ page for the sphere S⁰ at odd primes. This is joint work in progress with Weinan Lin, and the visualization may be updated as our work progresses.
-
-<br><br>
-
-<center>
-<a href="Adams_E2/unified_viewer.html" style="font-size: 18px; padding: 12px 24px; background: #3879d9; color: white; text-decoration: none; border-radius: 6px; display: inline-block; margin: 10px;">
-    Launch Adams Spectral Sequence Visualizer
-</a>
-</center>
-
-<br><br>
-
-<strong>Features:</strong>
-<ul>
-<li>Interactive zoom and pan navigation</li>
-<li>Support for primes 3, 5, 7, and 11</li>
-<li>Visualization of product relationships with a₀ and h₀</li>
-<li>Element selection and highlighting</li>
-<li>Touch and mouse support</li>
-</ul>
-
-<br>
-
-<strong>Visualization Details:</strong>
-<ul>
-<li><strong>Bullets:</strong> Represent additive basis elements in the E₂ page</li>
-<li><strong>Lines:</strong> Show multiplication by a₀ and h₀ (we display only these specific products)</li>
-<li><strong>Pan:</strong> Click and drag, or use arrow keys</li>
-<li><strong>Zoom:</strong> Mouse wheel, pinch gesture, or +/- keys</li>
-<li><strong>Select element:</strong> Click on any bullet to see its products highlighted in green</li>
-</ul>
-
-<br>
-
-This visualization is based on recent machine-generated computational results in joint work in progress with Weinan Lin.
 
 <br>
 <hr>
