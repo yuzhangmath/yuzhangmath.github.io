@@ -321,11 +321,20 @@ p.absOff {
         margin-bottom: 15px;
     }
     
+    /* Fix for email and address display on mobile */
     nav#side p {
         text-align: center;
-        margin: 20px 0; /* More spacing between paragraphs */
+        margin: 20px 0;
         display: block;
         width: 100%;
+        line-height: 1.8;
+    }
+    
+    /* Ensure proper line breaks for contact info */
+    nav#side br {
+        display: block;
+        content: "";
+        margin: 8px 0;
     }
     
     div.wrapper {
@@ -334,7 +343,7 @@ p.absOff {
         padding: 25px 20px;
     }
     
-    /* Fix top navigation for mobile */
+    /* Fix top navigation for mobile - make it wrap properly */
     nav#top {
         height: auto;
         min-height: 45px;
@@ -345,13 +354,13 @@ p.absOff {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 3px;
+        gap: 8px;
         padding: 0 10px;
     }
     
     nav#top li {
-        padding: 3px 6px;
-        font-size: 0.85em;
+        padding: 4px 8px;
+        font-size: 0.9em;
         white-space: nowrap;
     }
     
@@ -364,19 +373,23 @@ p.absOff {
         line-height: 1.6;
     }
     
-    /* Improve text readability in content */
+    /* Fix content spacing in About Me section */
+    .wrapper > * {
+        margin-bottom: 1.2em;
+    }
+    
+    /* Ensure proper paragraph spacing */
     .wrapper p {
         margin-bottom: 1.2em;
         text-align: left;
+        display: block;
     }
     
+    /* Make sure line breaks are preserved */
     .wrapper br {
-        display: none; /* Remove excessive line breaks */
-    }
-    
-    /* Add proper paragraph spacing */
-    .wrapper > * {
-        margin-bottom: 1.2em;
+        display: block;
+        content: "";
+        margin: 0.8em 0;
     }
     
     /* Better section spacing */
@@ -386,6 +399,16 @@ p.absOff {
     
     h1 {
         margin: 1em 0 0.5em 0;
+    }
+    
+    /* Fix list spacing */
+    .wrapper ul, .wrapper ol {
+        margin-bottom: 1.5em;
+        padding-left: 1.5em;
+    }
+    
+    .wrapper li {
+        margin-bottom: 0.8em;
     }
 }
 
@@ -409,11 +432,12 @@ p.absOff {
         margin-bottom: 15px;
     }
     
-    /* Stack email and address on separate lines */
+    /* Stack email and address on separate lines with better spacing */
     nav#side p {
         display: block;
         width: 100%;
         margin: 15px 0;
+        line-height: 1.8;
     }
     
     div.wrapper {
@@ -428,13 +452,13 @@ p.absOff {
     }
     
     nav#top ul {
-        gap: 2px;
+        gap: 6px;
         padding: 0 8px;
     }
     
     nav#top li {
-        padding: 2px 4px;
-        font-size: 0.78em;
+        padding: 3px 6px;
+        font-size: 0.82em;
     }
     
     div#black-bar {
@@ -457,6 +481,11 @@ p.absOff {
     
     .wrapper ul, .wrapper ol {
         margin-bottom: 1.8em;
+        padding-left: 1.2em;
+    }
+    
+    .wrapper li {
+        margin-bottom: 0.7em;
     }
 }
 
@@ -478,14 +507,15 @@ p.absOff {
         padding: 15px 10px;
     }
     
+    /* Even more compact navigation for very small screens */
     nav#top ul {
-        gap: 1px;
+        gap: 4px;
         padding: 0 5px;
     }
     
     nav#top li {
-        padding: 1px 3px;
-        font-size: 0.75em;
+        padding: 2px 4px;
+        font-size: 0.78em;
     }
     
     body {
@@ -495,6 +525,10 @@ p.absOff {
     /* Even more compact on very small screens */
     .wrapper p {
         margin-bottom: 1.4em;
+    }
+    
+    .wrapper ul, .wrapper ol {
+        padding-left: 1em;
     }
 }
 
@@ -519,4 +553,23 @@ p.absOff {
 .nav-hover-text-red:hover {
     color: black !important;
     background-color: #AFFFF5 !important;
+}
+
+/* Mobile-specific fixes for content structure */
+@media screen and (max-width: 767px) {
+    /* Ensure proper spacing between content blocks */
+    .wrapper > br {
+        display: block;
+        margin: 1em 0;
+    }
+    
+    /* Fix spacing in lists without bullets */
+    ul[style*="list-style: none"] {
+        padding-left: 0;
+    }
+    
+    ul[style*="list-style: none"] li {
+        margin-bottom: 1.5em;
+        padding-bottom: 0.5em;
+    }
 }
