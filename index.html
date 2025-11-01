@@ -1,265 +1,69 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
-.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
-.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
-.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
-.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
-</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
-#MathJax_About.MathJax_MousePost {outline: none}
-.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
-.MathJax_MenuItem {padding: 1px 2em; background: transparent}
-.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
-.MathJax_MenuActive .MathJax_MenuArrow {color: white}
-.MathJax_MenuArrow.RTL {left: .5em; right: auto}
-.MathJax_MenuCheck {position: absolute; left: .7em}
-.MathJax_MenuCheck.RTL {right: .7em; left: auto}
-.MathJax_MenuRadioCheck {position: absolute; left: .7em}
-.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
-.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
-.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
-.MathJax_MenuDisabled {color: GrayText}
-.MathJax_MenuActive {background-color: #606872; color: white}
-.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
-.MathJax_ContextMenu:focus {outline: none}
-.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
-#MathJax_AboutClose {top: .2em; right: .2em}
-.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
-.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
-.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
-.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
-.MathJax_MenuClose:hover span {background-color: #CCC!important}
-.MathJax_MenuClose:hover:focus {outline: none}
-</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
-</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
-.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
-</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
-#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
-#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
-#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
-</style><style type="text/css">.MathJax_Preview {color: #888}
-#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
-#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
-.MathJax_Error {color: #CC0000; font-style: italic}
-</style><style type="text/css">.MJXp-script {font-size: .8em}
-.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
-.MJXp-bold {font-weight: bold}
-.MJXp-italic {font-style: italic}
-.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-largeop {font-size: 150%}
-.MJXp-largeop.MJXp-int {vertical-align: -.2em}
-.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
-.MJXp-display {display: block; text-align: center; margin: 1em 0}
-.MJXp-math span {display: inline-block}
-.MJXp-box {display: block!important; text-align: center}
-.MJXp-box:after {content: " "}
-.MJXp-rule {display: block!important; margin-top: .1em}
-.MJXp-char {display: block!important}
-.MJXp-mo {margin: 0 .15em}
-.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
-.MJXp-denom {display: inline-table!important; width: 100%}
-.MJXp-denom > * {display: table-row!important}
-.MJXp-surd {vertical-align: top}
-.MJXp-surd > * {display: block!important}
-.MJXp-script-box > *  {display: table!important; height: 50%}
-.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
-.MJXp-script-box > *:last-child > * {vertical-align: bottom}
-.MJXp-script-box > * > * > * {display: block!important}
-.MJXp-mphantom {visibility: hidden}
-.MJXp-munderover {display: inline-table!important}
-.MJXp-over {display: inline-block!important; text-align: center}
-.MJXp-over > * {display: block!important}
-.MJXp-munderover > * {display: table-row!important}
-.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
-.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
-.MJXp-mtr {display: table-row!important}
-.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
-.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
-.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
-.MJXp-mlabeledtr {display: table-row!important}
-.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
-.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
-.MJXp-merror {background-color: #FFFF88; color: #cc0000; border: 1px solid #cc0000; padding: 1px 3px; font-style: normal; font-size: 90%}
-.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
-.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
-.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
-.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
-.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
-.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
-.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
-.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
-.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
-.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
-.MathJax_PHTML .noError {vertical-align: baseline; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
-</style></head><body data-new-gr-c-s-check-loaded="14.1026.0" data-gr-ext-installed=""><div id="MathJax_Message" style="display: none;"></div><p> </p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<title> Yu Zhang - TJU Homepage </title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yu Zhang - TJU Homepage</title>
 
 <meta name="description" content="Yu Zhang - Tianjin University Homepage">
-
 <meta name="keywords" content="yu zhang, zhang yu, ohio state, osu, nankai, nku, homotopy, tju, Tianjin University">
 
 <link rel="stylesheet" href="stylesheet.css">
 
-<script type="text/x-mathjax-config;executed=true">
-
-MathJax.Hub.Config({
-
-tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
-
-});
-
-</script>
-
-<script src="MathJax.js" id=""></script>
-
+<!-- Simplified MathJax Configuration -->
 <script>
-
-function includeHTML() {
-
-var z, i, elmnt, file, xhttp;
-
-/*loop through a collection of all HTML elements:*/
-
-z = document.getElementsByTagName("*");
-
-for (i = 0; i < z.length; i++) {
-
-elmnt = z[i];
-
-/*search for elements with a certain atrribute:*/
-
-file = elmnt.getAttribute("w3-include-html");
-
-if (file) {
-
-/*make an HTTP request using the attribute value as the file name:*/
-
-xhttp = new XMLHttpRequest();
-
-xhttp.onreadystatechange = function() {
-
-if (this.readyState == 4) {
-
-if (this.status == 200) {elmnt.innerHTML = this.responseText;}
-
-if (this.status == 404) {elmnt.innerHTML = "Page not found.";}
-
-/*remove the attribute, and call this function once more:*/
-
-elmnt.removeAttribute("w3-include-html");
-
-includeHTML();
-
-}
-
-} 
-
-xhttp.open("GET", file, true);
-
-xhttp.send();
-
-/*exit the function:*/
-
-return;
-
-}
-
-}
-
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
 };
-
 </script>
+<script src="MathJax.js"></script>
+
+</head>
+<body>
+<div id="MathJax_Message" style="display: none;"></div>
 
 <div>
 <nav id="top"> 
-
-
-
-
-
 <p></p><ul>
-
-<li> <a href="#Home">Home</a></li>
-
-<li> <a href="#Research">Research</a></li>
-  
-<li> <a href="#Conference">Conference</a></li>
-  
-<li> <a href="#Lecture">Lecture</a></li>  
-
-<li> <a href="#Visualization">Visualization</a></li> 
-
-<li> <a href="#Teaching">Teaching</a></li>
-
-</li></ul><p></p>
-
+<li><a href="#Home">Home</a></li>
+<li><a href="#Research">Research</a></li>
+<li><a href="#Conference">Conference</a></li>
+<li><a href="#Lecture">Lecture</a></li>  
+<li><a href="#Visualization">Visualization</a></li> 
+<li><a href="#Teaching">Teaching</a></li>
+</ul><p></p>
 </nav>
-
 </div> 
 
-
-
-
-<div id="black-bar"> </div>
+<div id="black-bar"></div>
 
 <div>
 <nav id="side"> 
-
-<img src="yu.JPG" alt="myphoto"  width="240">
-
+<img src="yu.JPG" alt="Yu Zhang" width="240">
 <h1>Yu Zhang<br></h1>
 <p>
-
-<u>E-mail</u> <br>
+<strong>E-mail</strong><br>
 zhangyumath@tju.edu.cn<br>
-<u>Address</u> <br> 
+<strong>Address</strong><br> 
 Center for Applied Mathematics<br>
 Tianjin University<br> 
 No.92 Weijin Road<br> 
 Tianjin 300072, P.R.China<br> 
 </p>
-
-</nav><!-- side bar -->
-
-
+</nav>
 </div> 
-
-  
-  
 
 <main>
-
-<div>
 <div class="wrapper">
-<div class="header">
-
-
-</div> 
-  
   
 <br>
 <hr>
 <center>
 <a class="anchor" name="Home"></a>
-<h1>About me</h1>
+<h1>About Me</h1>
 </center>
-<main>
 <hr>
   
 <br><br>  
@@ -284,30 +88,23 @@ This homepage was last updated on March 30, 2025.
 
 <br><br>    
   
-<center><u>
-<h3> Employment </h3> 
-</u></center> 
+<center><h3>Employment</h3></center> 
+<ul style="list-style: none; padding-left: 0;">
+<li><strong>Assistant Professor</strong> (2023–present), Tianjin University, Tianjin, China.</li>
+<br>
+<li><strong>Postdoctoral Researcher</strong> (2020–2023), Nankai University, Tianjin, China.</li>
+</ul>
 
-<li><b>Assistant Professor</b> (2023--present), Tianjin University, Tianjin, China.<br>
-</li><br>
-
-<li><b>Postdoctoral Researcher</b> (2020--2023), Nankai University, Tianjin, China.<br>
-</li><br>
-  
-
-<center><u>
-<h3> Education </h3> 
-</u></center> 
-
-<li><b>The Ohio State University</b> (2014--2020), Columbus, Ohio, USA<br>
-  Ph.D. in Mathematics, Dissertation Advisor: <a href="https://people.math.osu.edu/harper.903/">John E. Harper</a>
-</li><br>
-
-<li><b>Peking University</b> (2010--2014), Beijing, China<br>
-  B.S. in Mathematics, Dissertation Advisor: <a href="https://www.math.pku.edu.cn/jsdw/js_20180628175159671361/f_20180628175159671361/69901.htm">Huijun Fan</a>
-</li><br>
-  
-
+<center><h3>Education</h3></center> 
+<ul style="list-style: none; padding-left: 0;">
+<li><strong>The Ohio State University</strong> (2014–2020), Columbus, Ohio, USA<br>
+Ph.D. in Mathematics, Dissertation Advisor: <a href="https://people.math.osu.edu/harper.903/">John E. Harper</a>
+</li>
+<br>
+<li><strong>Peking University</strong> (2010–2014), Beijing, China<br>
+B.S. in Mathematics, Dissertation Advisor: <a href="https://www.math.pku.edu.cn/jsdw/js_20180628175159671361/f_20180628175159671361/69901.htm">Huijun Fan</a>
+</li>
+</ul>
 
 <br><br>
 <hr>
@@ -323,62 +120,48 @@ Research Area: Algebraic Topology. I am particularly focused on (a) computations
   
 <br><br>  
   
-  
-<center><u>
-<h3> Publications/preprints 
-</h3> 
-</u></center>
+<center><h3>Publications/Preprints</h3></center>
 
-   
-<br>     
-  
-<li><b>The secondary periodic element $\beta_{p^2/p^2-1}$ and its applications.</b><br> 
+<ul style="list-style: none; padding-left: 0;">
+<li><strong>The secondary periodic element $\beta_{p^2/p^2-1}$ and its applications.</strong><br> 
 (joint with J. Hong and X. Wang). Sci. China Math. 68, 207-222 (2025). <a href="https://link.springer.com/epdf/10.1007/s11425-023-2251-3?sharing_token=PDVesQd0sOon0ARbyZfnYPe4RwlQNchNByi7wbcMAY4AolA_fhsNoLJpOSy0hNAlh1dJa53hKle5zSVEeoLgvGYkVBPrH6juqEC9cTEXyUQlStKLSBCShScC8YQheTE6Z9VDG8RITv2Nn_J1E2DWs5iOAK2-7GHLFOIVGm7e1OE%3D">SharedIt link</a> / <a href="https://link.springer.com/article/10.1007/s11425-023-2251-3#article-info">journal</a> 
 </li>  
-    
-<br>   
+<br>
 
-<li><b>Detecting nontrivial products in the stable homotopy ring of spheres via the third Morava stabilizer algebra.</b><br> 
+<li><strong>Detecting nontrivial products in the stable homotopy ring of spheres via the third Morava stabilizer algebra.</strong><br> 
 (joint with X. Wang, J. Wu, and L. Zhong). Proc. Amer. Math. Soc. 152 (2024), 4521-4536. <a href="morava.pdf">pdf</a> / <a href="https://www.ams.org/journals/proc/2024-152-10/S0002-9939-2024-16891-X/home.html">journal</a> 
 </li>  
-  
-<br>   
-  
-<li><b>A correspondence between higher Adams differentials and higher algebraic Novikov differentials at odd primes.</b><br> 
+<br>
+
+<li><strong>A correspondence between higher Adams differentials and higher algebraic Novikov differentials at odd primes.</strong><br> 
 (joint with X. Wang). Proc. Amer. Math. Soc. 151 (2023), 5087-5096. <a href="motivic_adams.pdf">pdf</a> / <a href="https://www.ams.org/journals/proc/2023-151-12/S0002-9939-2023-16513-2/home.html">journal</a> 
 </li>  
+<br>
 
-<br>     
-  
-<li><b>The p-primary subgroup of the cohomology of BPUn in dimension 2p+6.</b><br> 
-(joint with Z. Zhang, L. Zhong). Topology Appl. 338 (2023): 108642. <a href="BPUn2.pdf">pdf</a>  / <a href="https://www.sciencedirect.com/science/article/abs/pii/S0166864123002365">journal</a> 
+<li><strong>The p-primary subgroup of the cohomology of BPUn in dimension 2p+6.</strong><br> 
+(joint with Z. Zhang, L. Zhong). Topology Appl. 338 (2023): 108642. <a href="BPUn2.pdf">pdf</a> / <a href="https://www.sciencedirect.com/science/article/abs/pii/S0166864123002365">journal</a> 
 </li>  
-     
-<br>   
-  
-<li><b>Some nontrivial secondary Adams differentials on the fourth line.</b><br> 
+<br>
+
+<li><strong>Some nontrivial secondary Adams differentials on the fourth line.</strong><br> 
 (joint with X. Wang and Y. Wang). New York J. Math. 29 (2023) 687-707. <a href="adamsd2.pdf">pdf</a> / <a href="http://nyjm.albany.edu/j/2023/29-27.html">journal</a> 
 </li>    
-     
-<br>   
-  
-<li><b>Homotopy pro-nilpotent structured ring spectra and topological Quillen localization.</b><br> 
-J. Homotopy Relat. Struct. 17, 511-523 (2022).  <a href="homotopy_pro_nilpotent.pdf">pdf</a> / <a href="https://link.springer.com/epdf/10.1007/s40062-022-00316-9?sharing_token=gcvTT1tRg0GGXS55gd2fUfe4RwlQNchNByi7wbcMAY4awx7haIanIJyqxblzwo5AF0LzR-jBrP-kuU-Ae9DT7lLhiPJqD6BUoGe0_WAw7EBFNIWNoN6AQ-83aUuTrJ5yrTkAac_M1FzFN-bRcq5MJbaKS7_x8GS1IA7efi7q1Qs%3D">SharedIt link</a> / <a href="https://link.springer.com/article/10.1007/s40062-022-00316-9">journal</a> 
-</li>
-    
-<br>    
+<br>
 
-<li><b>The p-primary subgroups of the cohomology of BPUn in dimensions less than 2p+5.</b><br> 
+<li><strong>Homotopy pro-nilpotent structured ring spectra and topological Quillen localization.</strong><br> 
+J. Homotopy Relat. Struct. 17, 511-523 (2022). <a href="homotopy_pro_nilpotent.pdf">pdf</a> / <a href="https://link.springer.com/epdf/10.1007/s40062-022-00316-9?sharing_token=gcvTT1tRg0GGXS55gd2fUfe4RwlQNchNByi7wbcMAY4awx7haIanIJyqxblzwo5AF0LzR-jBrP-kuU-Ae9DT7lLhiPJqD6BUoGe0_WAw7EBFNIWNoN6AQ-83aUuTrJ5yrTkAac_M1FzFN-bRcq5MJbaKS7_x8GS1IA7efi7q1Qs%3D">SharedIt link</a> / <a href="https://link.springer.com/article/10.1007/s40062-022-00316-9">journal</a> 
+</li>
+<br>
+
+<li><strong>The p-primary subgroups of the cohomology of BPUn in dimensions less than 2p+5.</strong><br> 
 (joint with X. Gu, Z. Zhang and L. Zhong). Proc. Amer. Math. Soc. 150 (2022), 4099-4111. <a href="BPUn.pdf">pdf</a> / <a href="https://www.ams.org/journals/proc/2022-150-09/S0002-9939-2022-16000-6/home.html">journal</a>
 </li>
-    
-<br>            
-    
-<li><b>Topological Quillen localization of structured ring spectra.</b><br> 
-(joint with J. Harper).  Tbilisi Mathematical Journal 12(3):69-91, 2019. <a href="TQLocalization.pdf">pdf</a>
-/ <a href="https://projecteuclid.org/euclid.tbilisi/1569463235">journal</a>    
+<br>
+
+<li><strong>Topological Quillen localization of structured ring spectra.</strong><br> 
+(joint with J. Harper). Tbilisi Mathematical Journal 12(3):69-91, 2019. <a href="TQLocalization.pdf">pdf</a> / <a href="https://projecteuclid.org/euclid.tbilisi/1569463235">journal</a>    
 </li>
-    
+</ul>
   
 <br>
 <hr>
@@ -388,30 +171,19 @@ J. Homotopy Relat. Struct. 17, 511-523 (2022).  <a href="homotopy_pro_nilpotent.
 </center>
 <hr>
   
-<center><u>
-<h3> <a href="23conference/23conference.html">2023 Topology and its Applications Conference</a> </h3> 
-</u></center>  
+<center><h3><a href="23conference/23conference.html">2023 Topology and its Applications Conference</a></h3></center>  
   
 We are pleased to announce the upcoming 2023 Topology and its Applications Conference, scheduled from May 12 to May 16 at Nankai University in Tianjin.
   
-<br>  
+<br><br>
   
-<br>   
+Algebraic topology, an important branch of mathematics, has witnessed significant progress in recent years. Topology has also found useful applications in fields such as chemical compounds, biological proteins, and social networks for data analysis. This conference aims to bring together distinguished experts in the field of topology and applied topology, promoting the development of topological applications and providing a platform for sharing insights and research findings on the latest advancements in this area.
   
-Algebraic topology, an important branch of mathematics, has witnessed significant progress in recent years. Topology has also found useful applications
-  in fields such as chemical compounds, biological proteins, and social networks for data analysis.
-This conference aims to bring together distinguished experts in the field of topology and applied topology, promoting the development of topological 
-  applications and providing a platform for sharing insights and research findings on the latest advancements in this area.
-  
-<br> 
-  
-<br>  
+<br><br>
   
 For further information about the conference, please visit the <a href="23conference/23conference.html">conference website</a>. 
  
-<br>  
-  
-  
+<br><br>
   
 <br>
 <hr>
@@ -421,59 +193,26 @@ For further information about the conference, please visit the <a href="23confer
 </center>
 <hr> 
   
-<center><u>
-<h3> An intuitive introduction to motivic homotopy theory </h3> 
-</u></center>
+<center><h3>An intuitive introduction to motivic homotopy theory</h3></center>
 
-In May and June of 2021, I gave an online lecture series on motivic homotopy theory.  This is intended to be a leisure introduction to the most basic setup and 
-  relavant concepts in motivic homotopy theory, from a homotopy theorist's point of view.  
+In May and June of 2021, I gave an online lecture series on motivic homotopy theory. This is intended to be a leisure introduction to the most basic setup and relevant concepts in motivic homotopy theory, from a homotopy theorist's point of view.
 
+<br><br>
 
- The slides are given here. Please be warned that these informal notes might contain mistakes.
-  
- <br>   
-  
- <br>    
-  
- Lecture 1: Overview, Category theory, and Simplicial sets.  <a href="intuitive_motivic/Lec01.pdf">Slides</a>
-  
- <br>   
-  
- <br>   
-  
- Lecture 2: Model category.  <a href="intuitive_motivic/Lec02.pdf">Slides</a>
-  
- <br>   
-  
- <br>   
-  
- Lecture 3: Scheme.  <a href="intuitive_motivic/Lec03.pdf">Slides</a>
-  
- <br>   
-  
- <br>  
-  
- Lecture 4: Unstable motivic homotopy theory.  <a href="intuitive_motivic/Lec04.pdf">Slides</a>
-  
- <br>   
-  
- <br>  
-  
- Lecture 5: Stable motivic homotopy theory.  <a href="intuitive_motivic/Lec05.pdf">Slides</a>
+<strong>Lecture Materials:</strong>
+<ul>
+<li>Lecture 1: Overview, Category theory, and Simplicial sets. <a href="intuitive_motivic/Lec01.pdf">Slides</a></li>
+<li>Lecture 2: Model category. <a href="intuitive_motivic/Lec02.pdf">Slides</a></li>
+<li>Lecture 3: Scheme. <a href="intuitive_motivic/Lec03.pdf">Slides</a></li>
+<li>Lecture 4: Unstable motivic homotopy theory. <a href="intuitive_motivic/Lec04.pdf">Slides</a></li>
+<li>Lecture 5: Stable motivic homotopy theory. <a href="intuitive_motivic/Lec05.pdf">Slides</a></li>
+</ul>
 
- <br>   
-  
- <br>  
-  
- Videos of the lectures are available for download <a href="https://wwr.lanzoui.com/b02c3ofah">here</a>.   Password: hny3
+Videos of the lectures are available for download <a href="https://wwr.lanzoui.com/b02c3ofah">here</a>. Password: hny3
  
- <br>   
+<br><br>
   
- <br>  
-  
- The lectures were given in Chinese. 
-  
-  
+The lectures were given in Chinese. 
   
 <br><br>  
   
@@ -493,7 +232,7 @@ This interactive visualization displays the Adams Spectral Sequence E₂ page fo
 <br><br>
 
 <center>
-<a href="Adams_E2/unified_viewer.html" style="font-size: 18px; padding: 12px 24px; background: #3879d9; color: white; text-decoration: none; border-radius: 6px;">
+<a href="Adams_E2/unified_viewer.html" style="font-size: 18px; padding: 12px 24px; background: #3879d9; color: white; text-decoration: none; border-radius: 6px; display: inline-block; margin: 10px;">
     Launch Adams Spectral Sequence Visualizer
 </a>
 </center>
@@ -502,22 +241,22 @@ This interactive visualization displays the Adams Spectral Sequence E₂ page fo
 
 <strong>Features:</strong>
 <ul>
-    <li>Interactive zoom and pan navigation</li>
-    <li>Support for primes 3, 5, 7, and 11</li>
-    <li>Visualization of product relationships with a₀ and h₀</li>
-    <li>Element selection and highlighting</li>
-    <li>Touch and mouse support</li>
+<li>Interactive zoom and pan navigation</li>
+<li>Support for primes 3, 5, 7, and 11</li>
+<li>Visualization of product relationships with a₀ and h₀</li>
+<li>Element selection and highlighting</li>
+<li>Touch and mouse support</li>
 </ul>
 
 <br>
 
 <strong>Visualization Details:</strong>
 <ul>
-    <li><strong>Bullets:</strong> Represent additive basis elements in the E₂ page</li>
-    <li><strong>Lines:</strong> Show multiplication by a₀ and h₀ (we display only these specific products)</li>
-    <li><strong>Pan:</strong> Click and drag, or use arrow keys</li>
-    <li><strong>Zoom:</strong> Mouse wheel, pinch gesture, or +/- keys</li>
-    <li><strong>Select element:</strong> Click on any bullet to see its products highlighted in green</li>
+<li><strong>Bullets:</strong> Represent additive basis elements in the E₂ page</li>
+<li><strong>Lines:</strong> Show multiplication by a₀ and h₀ (we display only these specific products)</li>
+<li><strong>Pan:</strong> Click and drag, or use arrow keys</li>
+<li><strong>Zoom:</strong> Mouse wheel, pinch gesture, or +/- keys</li>
+<li><strong>Select element:</strong> Click on any bullet to see its products highlighted in green</li>
 </ul>
 
 <br>
@@ -532,68 +271,29 @@ This visualization is based on recent machine-generated computational results in
 </center>
 <hr>
 
-<u><h3> As instructor at TJU </h3></u>
-  
-<b>Calculus I</b>, Autumn 2024.
-  
-<br>  
-  
-<br>    
+<h3>As instructor at TJU</h3>
+<ul>
+<li><strong>Calculus I</strong>, Autumn 2024.</li>
+</ul>
 
+<h3>As instructor at NKU</h3>
+<ul>
+<li><strong><a href="SP22/SP22.html">Probability and Statistics for Liberal Arts</a></strong>, Spring 2022.</li>
+<li><strong><a href="AU21/AU21.html">Advanced Mathematics for Liberal Arts</a></strong>, Autumn 2021.</li>
+</ul>
 
-<u><h3> As instructor at NKU </h3></u>
-  
-<b><a href="SP22/SP22.html">Probability and Statistics for Liberal Arts</a></b>, Spring 2022.
-  
-<br>  
-  
-<br>    
-  
-<b><a href="AU21/AU21.html">Advanced Mathematics for Liberal Arts</a></b>, Autumn 2021.
-  
-<br>  
-  
-<br>   
+<h3>As graduate teaching associate at OSU</h3>
+<ul>
+<li><strong><a href="AU18/AU18.html">Math 2177</a></strong>: Mathematical Topics for Engineers, Autumn 2018.</li>
+<li><strong>Math 1172</strong>: Engineering Mathematics A, Autumn 2017.</li>
+<li><strong>Math 1172</strong>: Engineering Mathematics A, Autumn 2016.</li>
+<li><strong>Math 1152</strong>: Calculus II, Spring 2016.</li>
+</ul>
 
+<br><br><br>
 
+</div>
+</main>
 
-
-<u><h3> As graduate teaching associate at OSU </h3></u>
-  
-<b><a href="AU18/AU18.html">Math 2177</a></b>: Mathematical Topics for Engineers, Autumn 2018.
- 
-<br>
-  
-<br>
-    
-<b>Math 1172</b>: Engineering Mathematics A, Autumn 2017.
-
-<br>
-  
-<br>
-    
-<b>Math 1172</b>: Engineering Mathematics A, Autumn 2016.
-
-<br>
-  
-<br>
-    
-<b>Math 1152</b>: Calculus II, Spring 2016.
-  
-<br>    
-
-  <br>
-  
-  <br>
-  
-  <br>
-
-</main></main></div></div> 
-
-<script>
-
-includeHTML();
-
-</script>
-
-</main></body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
+</body>
+</html>
