@@ -1,0 +1,144 @@
+/* 
+    Adams Spectral Sequence Visualizer - Main Stylesheet
+    This stylesheet defines the visual appearance and layout for the Adams Spectral Sequence E₂ page visualization for the sphere S⁰. The visualization displays mathematical data as an interactive chart with bullets (dots) representing generators and lines representing product relationships.
+ */
+
+/* ===== GLOBAL STYLES ===== */
+
+body {
+    /* Full viewport coverage with no margins or scrollbars */
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Prevent scrolling - all content fits in viewport */
+    touch-action: none; /* Disable browser touch gestures (pinch-to-zoom, etc.) so we can implement custom touch handling */
+}
+
+/* 
+ * Disable text selection on visualization elements only
+ * Allow text selection in modal dialogs and other UI elements
+ */
+svg, #div_menubar, #div_menu {
+    -moz-user-select: none;    /* Firefox */
+    -webkit-user-select: none; /* Chrome, Safari, Opera */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
+    user-select: none;         /* Standard */
+    -o-user-select: none;      /* Old Opera */
+}
+
+/* Allow text selection in modal content */
+#custom-modal, #custom-modal * {
+    -moz-user-select: text;    /* Firefox */
+    -webkit-user-select: text; /* Chrome, Safari, Opera */
+    -ms-user-select: text;     /* Internet Explorer/Edge */
+    user-select: text;         /* Standard */
+    -o-user-select: text;      /* Old Opera */
+}
+
+/* 
+ * SVG element covers entire viewport and is positioned absolutely
+ * This serves as the main canvas for the mathematical visualization
+ */
+svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* ===== MENUBAR STYLES ===== */
+
+/* 
+ * Menu bar positioned in top-right corner
+ * Contains prime selector and context menu button
+ */
+#div_menubar {
+    position: fixed;    /* Stays in place during scrolling/zooming */
+    top: 5px;
+    right: 5px;
+    height: 30px;
+    background: #fff;   /* White background for readability */
+    padding: 3px;
+    opacity: 0.9;       /* Slightly transparent to see through to chart */
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+/* Style the prime selection dropdown */
+#div_menubar select {
+    height: 100%;       /* Fill the menu bar height */
+    vertical-align: top; /* Align with other elements in menubar */
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 0 5px;
+    margin-right: 5px;
+}
+
+/* Style the context menu button (⋯) */
+#div_menubar button {
+    height: 100%;       /* Fill the menu bar height */
+    vertical-align: top; /* Align with other elements in menubar */
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+#div_menubar button:hover {
+    background: #e5e5e5;
+}
+
+/* ===== CONTEXT MENU STYLES ===== */
+
+/* 
+ * Context menu (initially hidden, shown on right-click)
+ * Used for "About & Metadata" and "Help" options
+ */
+#div_menu {
+    position: fixed;
+    visibility: hidden; /* Hidden by default, shown via JavaScript */
+    background: #fff;
+    color: #555;
+    font-family: sans-serif;
+    font-size: 11px;    /* Small, compact menu */
+    
+    /* Subtle shadow for visual separation from background */
+    -webkit-box-shadow: 2px 2px 2px 0px rgba(143, 144, 145, 1);
+    -moz-box-shadow: 2px 2px 2px 0px rgba(143, 144, 145, 1);
+    box-shadow: 2px 2px 2px 0px rgba(143, 144, 145, 1);
+    
+    padding: 0px;
+    border: 1px solid #c6c6c6; /* Light gray border */
+    border-radius: 4px;
+}
+
+/* Style individual context menu items */
+#div_menu a {
+    position: relative;
+    display: block;
+    color: #555;
+    text-decoration: none; /* Remove underline from links */
+    padding: 6px 8px 6px 30px; /* Generous left padding for potential icons */
+    width: 250px; /* Fixed width for consistent appearance */
+}
+
+/* 
+ * Style for potential secondary text in menu items
+ * (Currently used for keyboard shortcuts or descriptions)
+ */
+#div_menu a span {
+    color: #bcb1b3; /* Light gray for secondary information */
+    float: right;   /* Right-align secondary text */
+}
+
+/* Hover effect for menu items */
+#div_menu a:hover {
+    color: #fff;
+    background: #3879d9; /* Blue highlight on hover */
+}
+
+/* Menu separator line */
+#div_menu hr {
+    border: 1px solid #ebebeb; /* Very light gray line */
+    border-bottom: 0;          /* Remove default bottom border */
+}

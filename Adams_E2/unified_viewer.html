@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!-- 
+ * Adams Spectral Sequence Unified Viewer - Main HTML File
+ * Created by: Weinan Lin, Yu Zhang
+ * 
+ * This file defines the complete structure for the Adams Spectral Sequence visualization.
+ * It sets up the SVG canvas, UI controls, and loads all necessary resources.
+ -->
+<html lang="en">
+
+<!-- 
+ * VIEWPORT CONFIGURATION:
+ * - user-scalable=no: Disables browser zoom (we implement custom zoom)
+ * - fixed scale: Prevents mobile browsers from auto-scaling
+ * This ensures our custom zoom/pan system works consistently across devices
+ -->
+<meta name="viewport" user-scalable="no"
+  content="width=device-width,minimum-scale=0.75,maximum-scale=0.75,initial-scale=0.75" />
+
+<head>
+  <meta charset="UTF-8" />
+  
+  <!-- Dynamic page title - updated by JavaScript based on selected prime -->
+  <title id="title">AdamsSS</title>
+  
+  <!-- Main stylesheet for UI elements and layout -->
+  <link rel="stylesheet" href="plot_assets/main.css">
+</head>
+
+<body>
+  <!-- 
+   * MAIN SVG CANVAS:
+   * The entire visualization happens within this SVG element.
+   * All mathematical elements (bullets, lines, grid) are SVG children.
+   * Dimensions are set dynamically by JavaScript to fill the viewport.
+   -->
+  <svg id="svg_ss">
+    
+    <!-- 
+     * COORDINATE SYSTEM TRANSFORMATION GROUP:
+     * This group applies a coordinate system flip so that:
+     * - Mathematical coordinates: (0,0) at bottom-left, y increases upward
+     * - SVG coordinates: (0,0) at top-left, y increases downward
+     * The transform does: translate Y down, then scale Y by -1 (flip vertically)
+     -->
+    <g id="g_svg">
+      
+      <!-- 
+       * PLOTTING GROUP:
+       * This group contains all the mathematical visualization elements.
+       * It gets transformed by the camera system for zooming and panning.
+       * The transform is updated dynamically by JavaScript.
+       -->
+      <g id="g_plot">
+        
+        <!-- Selection rectangle - highlights currently selected bullet -->
+        <rect id="rect_selected" x="-1000" y="-1000" width="1" height="1" fill="red" opacity="0.1" />
+        
+        <!-- Grid lines - background coordinate reference -->
+        <g id="g_grid" stroke-width="0.009" stroke="grey"></g>
+        
+        <!-- Structure lines - product relationships between bullets -->
+        <g id="g_strtlines" fill="transparent"></g>
+        
+        <!-- Product highlights - green circles showing results of selected bullet's products -->
+        <g id="g_prod" fill="green"></g>
+        
+        <!-- Mouse hover effect - grey circle that follows mouse over bullets -->
+        <circle id="circle_mouseon" cx="-1000" cy="-1000" r="0" fill="grey"></circle>
+        
+        <!-- 
+         * BULLET CONTAINERS - Color-coded groups:
+         * - black: Main generators (currently all bullets go here)
+         * - blue: Reserved for special elements (not currently used)
+         * - grey: Reserved for other element types (not currently used)
+         * This structure allows future color differentiation of element types.
+         -->
+        <g id="g_bullets_black" fill="black"></g>
+        <g id="g_bullets_blue" fill="blue"></g>
+        <g id="g_bullets_grey" fill="grey"></g>
+        
+        <!-- 
+         * LABELS GROUP:
+         * For text annotations on the plot (currently empty but available for future use).
+         * Has text selection disabled to prevent accidental text selection during interaction.
+         * Y-coordinates are flipped to match mathematical coordinate system.
+         -->
+        <g id="g_labels" text-anchor="end" style="
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                -o-user-select: none;
+              " unselectable="on" onselectstart="return false;" onmousedown="return false;" transform="scale(1,-1)">
+        </g>
+      </g>
+
+      <!-- ===== AXIS AND UI ELEMENTS (Fixed position, not affected by camera) ===== -->
+
+      <!-- Left margin - covers area where y-axis labels appear -->
+      <rect x="0" y="0" width="40" height="100%" fill="white" />
+      
+      <!-- Bottom margin - covers area where x-axis labels appear -->
+      <rect id="bottomBlock" x="0" y="0" width="100%" height="30" fill="white" />
+      
+      <!-- X-axis line (bottom edge of plot area) -->
+      <line x1="40" y1="30" x2="100%" y2="30" stroke-width="2" stroke="black"></line>
+      
+      <!-- Y-axis line (left edge of plot area) -->
+      <line x1="40" y1="30" x2="40" y2="100%" stroke-width="2" stroke="black"></line>
+      
+      <!-- X-axis labels group - for t-s coordinate labels -->
+      <g id="g_xaxis" text-anchor="middle" unselectable="on" onselectstart="return false;" onmousedown="return false;"
+        transform="scale(1,-1)"></g>
+      
+      <!-- Y-axis labels group - for s coordinate labels -->
+      <g id="g_yaxis" text-anchor="end" unselectable="on" onselectstart="return false;" onmousedown="return false;"
+        transform="scale(1,-1)"></g>
+    </g>
+  </svg>
+
+  <!-- 
+   * MENUBAR:
+   * Fixed position control panel in top-right corner.
+   * Contains prime selector and context menu button.
+   * Generated dynamically by JavaScript based on available primes.
+   -->
+  <div id="div_menubar">
+    <!-- Prime selector will be generated by JavaScript -->
+  </div>
+
+  <!-- 
+   * CONTEXT MENU:
+   * Hidden by default, appears on right-click or menu button click.
+   * Provides access to about information and help.
+   -->
+  <div id="div_menu">
+      <a href="#" onclick="on_about_metadata()">
+          About & Metadata
+          <span></span> <!-- Empty span for potential keyboard shortcuts or icons -->
+      </a>
+      <a href="#" onclick="showHelp()">
+          Help
+          <span></span> <!-- Empty span for potential keyboard shortcuts or icons -->
+      </a>
+  </div>
+
+  <!-- ===== DATA FILES - Mathematical data for different primes ===== -->
+  
+  <!-- 
+   * Each script loads a global variable with the format:
+   * globalThis.DATA_JSON_p_{prime}_S0 = { ... mathematical data ... }
+   * These are generated by generate_data_files.py
+   -->
+  <script src="E2_js_data/p_3_S0.js"></script>
+  <script src="E2_js_data/p_5_S0.js"></script>
+  <script src="E2_js_data/p_7_S0.js"></script>
+  <script src="E2_js_data/p_11_S0.js"></script>
+
+  <!-- Main application JavaScript -->
+  <script src="plot_assets/main.js"></script>
+</body>
+
+</html>
