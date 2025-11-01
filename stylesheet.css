@@ -15,6 +15,8 @@ button, select {
 
 button, html [type="button"], [type="reset"], [type="submit"] {
     -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
 }
 
 /* ===== DESKTOP/LAPTOP FIRST STYLES ===== */
@@ -267,7 +269,7 @@ p.absOff {
     color: #ffffff !important;
 }
 
-/* ===== TABLET STYLES (1024px and below) ===== */
+/* ===== TABLET STYLES (1024px and below) - Keep desktop layout ===== */
 @media screen and (max-width: 1024px) {
     nav#side {
         width: 280px;
@@ -289,11 +291,11 @@ p.absOff {
     }
 }
 
-/* ===== LARGE MOBILE/TABLET (768px and below) ===== */
-@media screen and (max-width: 768px) {
+/* ===== PHONE STYLES (767px and below) - Only apply mobile layout to phones ===== */
+@media screen and (max-width: 767px) {
     .layout-container {
         flex-direction: column;
-        margin-top: 45px;
+        margin-top: auto;
         min-height: calc(100vh - 45px);
     }
     
@@ -316,26 +318,41 @@ p.absOff {
     nav#side h1 {
         text-align: center;
         font-size: 1.6em;
+        margin-bottom: 15px;
     }
     
     nav#side p {
         text-align: center;
+        margin: 20px 0; /* More spacing between paragraphs */
+        display: block;
+        width: 100%;
     }
     
     div.wrapper {
         margin-left: 0;
         width: 100%;
-        padding: 30px 25px;
+        padding: 25px 20px;
     }
     
-    /* Adjust top navigation for tablet */
+    /* Fix top navigation for mobile */
     nav#top {
-        height: 45px;
+        height: auto;
+        min-height: 45px;
+        padding: 8px 0;
+    }
+    
+    nav#top ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 3px;
+        padding: 0 10px;
     }
     
     nav#top li {
-        padding: 0 10px;
-        font-size: 0.95em;
+        padding: 3px 6px;
+        font-size: 0.85em;
+        white-space: nowrap;
     }
     
     div#black-bar {
@@ -343,15 +360,40 @@ p.absOff {
     }
     
     body {
-        font-size: 15px;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    
+    /* Improve text readability in content */
+    .wrapper p {
+        margin-bottom: 1.2em;
+        text-align: left;
+    }
+    
+    .wrapper br {
+        display: none; /* Remove excessive line breaks */
+    }
+    
+    /* Add proper paragraph spacing */
+    .wrapper > * {
+        margin-bottom: 1.2em;
+    }
+    
+    /* Better section spacing */
+    hr {
+        margin: 2em 0;
+    }
+    
+    h1 {
+        margin: 1em 0 0.5em 0;
     }
 }
 
-/* ===== MOBILE STYLES (480px and below) ===== */
+/* ===== SMALL PHONE STYLES (480px and below) ===== */
 @media screen and (max-width: 480px) {
     .layout-container {
-        margin-top: 40px;
-        min-height: calc(100vh - 40px);
+        margin-top: 42px;
+        min-height: calc(100vh - 42px);
     }
     
     nav#side {
@@ -359,7 +401,7 @@ p.absOff {
     }
     
     nav#side img {
-        width: 150px;
+        width: 140px;
     }
     
     nav#side h1 {
@@ -367,53 +409,65 @@ p.absOff {
         margin-bottom: 15px;
     }
     
+    /* Stack email and address on separate lines */
+    nav#side p {
+        display: block;
+        width: 100%;
+        margin: 15px 0;
+    }
+    
     div.wrapper {
         padding: 20px 15px;
     }
     
-    /* Compact top navigation for mobile */
+    /* More compact top navigation for small mobile */
     nav#top {
-        height: 40px;
+        height: auto;
+        min-height: 42px;
+        padding: 6px 0;
     }
     
     nav#top ul {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        padding: 5px 0;
+        gap: 2px;
+        padding: 0 8px;
     }
     
     nav#top li {
-        padding: 2px 6px;
-        font-size: 0.85em;
+        padding: 2px 4px;
+        font-size: 0.78em;
     }
     
     div#black-bar {
-        top: 40px;
+        top: 42px;
     }
     
     body {
-        font-size: 14px;
+        font-size: 15px;
+        line-height: 1.6;
     }
     
     h1 {
         font-size: 1.3em;
     }
     
-    /* Reduce excessive spacing on mobile */
-    br {
-        display: none;
+    /* Improve content spacing on small mobile */
+    .wrapper p {
+        margin-bottom: 1.3em;
+    }
+    
+    .wrapper ul, .wrapper ol {
+        margin-bottom: 1.8em;
     }
 }
 
-/* ===== SMALL MOBILE STYLES (360px and below) ===== */
+/* ===== VERY SMALL PHONE STYLES (360px and below) ===== */
 @media screen and (max-width: 360px) {
     nav#side {
         padding: 15px 10px;
     }
     
     nav#side img {
-        width: 130px;
+        width: 120px;
     }
     
     nav#side h1 {
@@ -424,13 +478,23 @@ p.absOff {
         padding: 15px 10px;
     }
     
+    nav#top ul {
+        gap: 1px;
+        padding: 0 5px;
+    }
+    
     nav#top li {
-        padding: 1px 4px;
-        font-size: 0.8em;
+        padding: 1px 3px;
+        font-size: 0.75em;
     }
     
     body {
-        font-size: 13px;
+        font-size: 14px;
+    }
+    
+    /* Even more compact on very small screens */
+    .wrapper p {
+        margin-bottom: 1.4em;
     }
 }
 
@@ -442,4 +506,17 @@ p.absOff {
     text-indent: 0;
     text-transform: none;
     word-spacing: normal;
+}
+
+/* Navigation color classes */
+.nav-gray,
+.nav-hover-gray:hover {
+    color: white !important;
+    background-color: #a3a3a3 !important;
+}
+
+.nav-red,
+.nav-hover-text-red:hover {
+    color: black !important;
+    background-color: #AFFFF5 !important;
 }
