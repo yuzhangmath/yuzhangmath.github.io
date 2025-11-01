@@ -295,8 +295,8 @@ p.absOff {
 @media screen and (max-width: 767px) {
     .layout-container {
         flex-direction: column;
-        margin-top: 60px; /* Increased to prevent content being covered */
-        min-height: calc(100vh - 60px);
+        margin-top: 40px; /* Reduced to account for single-line nav */
+        min-height: calc(100vh - 40px);
     }
     
     nav#side {
@@ -305,16 +305,16 @@ p.absOff {
         width: 100%;
         height: auto;
         text-align: center;
-        padding: 25px 20px 20px 20px; /* More top padding */
+        padding: 20px 15px;
         border-right: none;
         border-bottom: 2px solid #f0f0f0;
         box-sizing: border-box;
     }
     
     nav#side img {
-        width: 160px;
+        width: 150px;
         height: auto;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         max-width: 100%;
     }
     
@@ -339,39 +339,47 @@ p.absOff {
     div.wrapper {
         margin-left: 0;
         width: 100%;
-        padding: 25px 20px;
+        padding: 20px 15px;
         box-sizing: border-box;
     }
     
-    /* Fix top navigation for mobile - more compact but with proper spacing */
+    /* SINGLE-LINE NAVIGATION - Critical fix */
     nav#top {
-        height: auto;
-        min-height: 60px; /* Increased height to accommodate wrapped items */
-        padding: 8px 0;
+        height: 40px; /* Fixed height for single line */
+        min-height: 40px;
+        padding: 0;
+        overflow: hidden;
     }
     
     nav#top ul {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap; /* Prevent wrapping to new line */
         justify-content: center;
-        gap: 3px;
-        padding: 0 8px;
+        align-items: center;
+        gap: 0;
+        padding: 0 5px;
         margin: 0;
+        height: 100%;
+        overflow-x: auto; /* Allow horizontal scrolling if needed */
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
     }
     
     nav#top li {
-        padding: 4px 6px;
-        font-size: 0.82em;
+        padding: 0 4px;
+        font-size: 0.75em;
         white-space: nowrap;
+        flex-shrink: 0; /* Prevent items from shrinking */
     }
     
     nav#top a {
-        padding: 3px 5px;
+        padding: 8px 6px;
         display: block;
+        line-height: 1.2;
     }
     
     div#black-bar {
-        top: 60px; /* Adjusted to match new nav height */
+        top: 40px; /* Adjusted to match single-line nav height */
     }
     
     body {
@@ -379,20 +387,15 @@ p.absOff {
         line-height: 1.6;
     }
     
-    /* CRITICAL FIX: Adjust anchor positioning to account for mobile nav height */
+    /* CRITICAL FIX: Adjust anchor positioning to account for nav height */
     a.anchor {
-        top: -70px; /* Increased negative margin to push content below nav */
+        top: -50px; /* Reduced to match smaller nav height */
     }
     
     /* Ensure section titles have proper top padding */
     .wrapper h1 {
-        padding: 10px 5px 0 5px;
+        padding: 5px 5px 0 5px;
         word-wrap: break-word;
-    }
-    
-    /* Add extra top padding to the first element in wrapper */
-    .wrapper > *:first-child {
-        padding-top: 5px;
     }
     
     /* Fix content spacing in About Me section */
@@ -430,16 +433,16 @@ p.absOff {
 /* ===== SMALL PHONE STYLES (480px and below) ===== */
 @media screen and (max-width: 480px) {
     .layout-container {
-        margin-top: 65px; /* Further increased for smaller screens */
-        min-height: calc(100vh - 65px);
+        margin-top: 38px;
+        min-height: calc(100vh - 38px);
     }
     
     nav#side {
-        padding: 20px 15px 15px 15px;
+        padding: 18px 12px;
     }
     
     nav#side img {
-        width: 140px;
+        width: 130px;
     }
     
     nav#side h1 {
@@ -457,32 +460,31 @@ p.absOff {
     }
     
     div.wrapper {
-        padding: 20px 15px;
+        padding: 18px 12px;
     }
     
-    /* More compact top navigation for small mobile */
+    /* Even more compact single-line navigation */
     nav#top {
-        height: auto;
-        min-height: 65px;
-        padding: 6px 0;
+        height: 38px;
+        min-height: 38px;
     }
     
     nav#top ul {
-        gap: 2px;
-        padding: 0 5px;
+        padding: 0 3px;
+        gap: 0;
     }
     
     nav#top li {
-        padding: 3px 4px;
-        font-size: 0.78em;
+        padding: 0 3px;
+        font-size: 0.7em;
     }
     
     nav#top a {
-        padding: 2px 4px;
+        padding: 8px 4px;
     }
     
     div#black-bar {
-        top: 65px;
+        top: 38px;
     }
     
     body {
@@ -496,7 +498,7 @@ p.absOff {
     
     /* Adjust anchor for smaller header */
     a.anchor {
-        top: -75px;
+        top: -48px;
     }
     
     /* Improve content spacing on small mobile */
@@ -517,16 +519,16 @@ p.absOff {
 /* ===== VERY SMALL PHONE STYLES (360px and below) ===== */
 @media screen and (max-width: 360px) {
     .layout-container {
-        margin-top: 70px;
-        min-height: calc(100vh - 70px);
+        margin-top: 36px;
+        min-height: calc(100vh - 36px);
     }
     
     nav#side {
-        padding: 15px 10px 10px 10px;
+        padding: 15px 10px;
     }
     
     nav#side img {
-        width: 120px;
+        width: 110px;
     }
     
     nav#side h1 {
@@ -542,28 +544,28 @@ p.absOff {
         padding: 15px 10px;
     }
     
-    /* Even more compact navigation for very small screens */
+    /* Ultra-compact single-line navigation */
     nav#top {
-        min-height: 70px;
-        padding: 5px 0;
+        height: 36px;
+        min-height: 36px;
     }
     
     nav#top ul {
-        gap: 1px;
-        padding: 0 3px;
+        padding: 0 2px;
+        gap: 0;
     }
     
     nav#top li {
-        padding: 2px 3px;
-        font-size: 0.75em;
+        padding: 0 2px;
+        font-size: 0.65em;
     }
     
     nav#top a {
-        padding: 2px 3px;
+        padding: 8px 3px;
     }
     
     div#black-bar {
-        top: 70px;
+        top: 36px;
     }
     
     body {
@@ -572,7 +574,7 @@ p.absOff {
     
     /* Adjust anchor for very small header */
     a.anchor {
-        top: -80px;
+        top: -46px;
     }
     
     /* Even more compact on very small screens */
@@ -628,7 +630,7 @@ p.absOff {
     
     /* Ensure section titles are fully visible after navigation */
     center h1 {
-        padding: 15px 10px 0 10px;
+        padding: 10px 10px 0 10px;
         word-break: break-word;
         hyphens: auto;
     }
