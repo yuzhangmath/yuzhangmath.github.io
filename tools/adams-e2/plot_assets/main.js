@@ -87,7 +87,7 @@ var CONFIG_DYNAMIC = {
 };
 
 // Available primes and currently selected prime
-const AVAILABLE_PRIMES = [3, 5, 7, 11];
+const AVAILABLE_PRIMES = [3, 5, 7, 11, 13];
 var CURRENT_PRIME = 3;
 
 /* ===== MATHEMATICAL UTILITIES ===== */
@@ -741,7 +741,7 @@ function on_about_metadata() {
 
 // Show help dialog with navigation instructions
 function showHelp() {
-    const helpText = "Navigation:\n• Pan: Click and drag, or use the arrow keys\n• Zoom: Mouse wheel, pinch gesture, or +/- keys\n• Products: Black lines show multiplication by a₀ and h₀\n• Select element: Click on any dot. Product results are highlighted with green circles\n\nURL Parameters:\n• prime=3,5,7,11 - Select an odd prime\n• scale=2 - Set zoom level (larger values = more zoomed in)\n• x=10 - Set horizontal coordinate for the center viewport\n• y=5 - Set vertical coordinate for the center viewport\n\nExamples URLs:\n• unified_viewer.html?prime=5\n• unified_viewer.html?prime=3&scale=2&x=140&y=20\n• unified_viewer.html?prime=7&scale=0.5&x=500&y=40";
+    const helpText = "Navigation:\n• Pan: Click and drag, or use the arrow keys\n• Zoom: Mouse wheel, pinch gesture, or +/- keys\n• Products: Black lines show multiplication by a₀ and h₀\n• Select element: Click on any dot. Product results are highlighted with green circles\n\nURL Parameters:\n• prime=3,5,7,11,13 - Select an odd prime\n• scale=2 - Set zoom level (larger values = more zoomed in)\n• x=10 - Set horizontal coordinate for the center viewport\n• y=5 - Set vertical coordinate for the center viewport\n\nExamples URLs:\n• unified_viewer.html?prime=5\n• unified_viewer.html?prime=3&scale=2&x=140&y=20\n• unified_viewer.html?prime=7&scale=0.5&x=500&y=40";
     
     showCustomModal("Help", helpText);
 }
