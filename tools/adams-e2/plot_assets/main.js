@@ -535,12 +535,13 @@ function pointLabelCandidateEnvelope(anchor, labelSize) {
 function pointLabelObstacles(selection, anchor, labelSize) {
     const envelope = pointLabelCandidateEnvelope(anchor, labelSize);
     const selectedTargets = new Set(selection.targets);
-    const screenLayouts = new Array(ACTIVE_VIEW.count);
+    const screenLayouts = new Map();
     const pointObstacles = [];
 
-    for (let index = 0; index < ACTIVE_VIEW.count; index++) {
+    for (const bullet of g_bullets["black"].children) {
+        const index = Number(bullet.dataset.i);
         const layout = screenLayout(index);
-        screenLayouts[index] = layout;
+        screenLayouts.set(index, layout);
         if (index === selection.index) continue;
         const radius = selectedTargets.has(index) ?
             layout.worldRadius * 1.7 * camera.unit_svg : layout.radius;
@@ -555,9 +556,9 @@ function pointLabelObstacles(selection, anchor, labelSize) {
     }
 
     const segmentObstacles = [];
-    ACTIVE_VIEW.forEachEdge(function(source, target) {
-        const sourceLayout = screenLayouts[source];
-        const targetLayout = screenLayouts[target];
+    for (const line of g_strtlines.children) {
+        const sourceLayout = screenLayouts.get(Number(line.dataset.source));
+        const targetLayout = screenLayouts.get(Number(line.dataset.target));
         const width = Math.min(
             sourceLayout.worldRadius,
             targetLayout.worldRadius
@@ -576,7 +577,7 @@ function pointLabelObstacles(selection, anchor, labelSize) {
                 width,
             });
         }
-    });
+    }
     return {pointObstacles, segmentObstacles};
 }
 
