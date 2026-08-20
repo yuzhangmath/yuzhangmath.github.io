@@ -92,7 +92,6 @@ var CONFIG = {
     axis_text_sep_screen: 60,      // Minimum screen pixels between axis labels
     camera_zoom_rate: 1.06,        // Zoom sensitivity
     camera_translate_pixels: 100,  // Pan distance per keypress (pixels)
-    plot_batchSize: 1000,          // Number of elements to render per animation frame
     point_label_collision_padding: 4,
     point_label_zoom_reflow_delay: 120,
     point_label_gaps: [10, 34, 64],
@@ -178,6 +177,7 @@ const camera = {
         this.o_svg = new Vector(clip(origin_sp1.x, x_min, x_max), clip(origin_sp1.y, y_min, y_max));
         camera.setTransform();
         updateAxisLabels();
+        schedulePlotForActiveWindow();
         schedulePointLabelZoomReflow();
     },
     
@@ -195,6 +195,7 @@ const camera = {
         this.o_svg = new Vector(clip(origin_sp1.x, x_min, x_max), clip(origin_sp1.y, y_min, y_max));
         camera.setTransform();
         updateAxisLabels();
+        schedulePlotForActiveWindow();
     },
     
     // Convert world coordinates to SVG pixel coordinates
@@ -277,6 +278,7 @@ function windowResize() {
     CONFIG_DYNAMIC.camera_unit_screen_min = (window.innerWidth - CONFIG.margin_x) / (CONFIG.x_max + 1);
     CONFIG_DYNAMIC.camera_unit_screen_max = Math.min(window.innerWidth, window.innerHeight) - 30;
     updateAxisLabels();
+    schedulePlotForActiveWindow();
     schedulePointLabelPosition(true);
 }
 
@@ -313,22 +315,14 @@ function updateAxisLabels() {
 // Create the coordinate grid background with consistent appearance
 function addGridLines() {
     const g_grid = document.getElementById("g_grid");
-    g_grid.innerHTML = '';
-    
-    // Use consistent grid style across browsers
-    const gridStyle = 'stroke="#e0e0e0" stroke-width="0.015" stroke-opacity="0.6"';
-
-    // Add horizontal grid lines
-    for (let i = 0; i <= CONFIG.y_max; i += 1) {
-        const line = `<line x1="-0.5" y1="${i}" x2="${CONFIG.x_max + 0.5}" y2="${i}" ${gridStyle}></line>`;
-        g_grid.insertAdjacentHTML("beforeend", line);
-    }
-
-    // Add vertical grid lines
-    for (let i = 0; i <= CONFIG.x_max; i += 1) {
-        const line = `<line x1="${i}" y1="-.5" x2="${i}" y2="${CONFIG.y_max}" ${gridStyle}></line>`;
-        g_grid.insertAdjacentHTML("beforeend", line);
-    }
+    g_grid.innerHTML = `
+        <defs>
+            <pattern id="coordinate_grid_pattern" width="1" height="1" patternUnits="userSpaceOnUse">
+                <path d="M 0 0 H 1 M 0 0 V 1" fill="none" stroke="#e0e0e0" stroke-width="0.015" stroke-opacity="0.6"></path>
+            </pattern>
+        </defs>
+        <rect x="-0.5" y="-0.5" width="${CONFIG.x_max + 1}" height="${CONFIG.y_max + 0.5}" fill="url(#coordinate_grid_pattern)"></rect>
+    `;
 }
 
 /* ===== POINTER/TOUCH INTERACTION SYSTEM ===== */
@@ -1189,10 +1183,8 @@ function finalizeRenderedPlot(view, generation) {
 
 function getPlotController() {
     if (PLOT_CONTROLLER === null) {
-        PLOT_CONTROLLER = RENDER_CORE.createProgressivePlotController({
+        PLOT_CONTROLLER = RENDER_CORE.createViewportPlotController({
             generations: RENDER_GENERATIONS,
-            batchSize: CONFIG.plot_batchSize,
-            edgeBatchSize: Math.floor(CONFIG.plot_batchSize / 2),
             requestAnimationFrame(callback) { requestAnimationFrame(callback); },
             clear: clearPlot,
             appendNodes: appendRenderedNodes,
@@ -1203,9 +1195,15 @@ function getPlotController() {
     return PLOT_CONTROLLER;
 }
 
-// Start the plotting process for a dataset
-function Plot(view, generation) {
-    getPlotController().start(view, generation);
+function schedulePlotForActiveWindow() {
+    if (PLOT_CONTROLLER !== null && ACTIVE_VIEW !== null) {
+        PLOT_CONTROLLER.update(getActiveWindowBounds());
+    }
+}
+
+// Start plotting the current viewport and its surrounding buffer.
+function Plot(view, generation, viewportBounds) {
+    getPlotController().start(view, generation, viewportBounds);
 }
 
 /* ===== PRIME SELECTION AND URL PARAMETER SYSTEM ===== */
@@ -1299,6 +1297,20 @@ function setCameraPosition(scale, x, y) {
     updateAxisLabels();
 }
 
+function getActiveWindowBounds() {
+    const firstCorner = camera.svg2world(new Vector(0, 0));
+    const secondCorner = camera.svg2world(
+        new Vector(window.innerWidth, window.innerHeight)
+    );
+    const padding = 1;
+    return {
+        xMin: Math.min(firstCorner.x, secondCorner.x) - padding,
+        xMax: Math.max(firstCorner.x, secondCorner.x) + padding,
+        yMin: Math.min(firstCorner.y, secondCorner.y) - padding,
+        yMax: Math.max(firstCorner.y, secondCorner.y) + padding,
+    };
+}
+
 // Load and display data for a specific prime
 function ensureDataLoader() {
     if (DATA_LOADER === null) {
@@ -1309,7 +1321,7 @@ function ensureDataLoader() {
     return DATA_LOADER;
 }
 
-async function loadPrimeData(prime) {
+async function loadPrimeData(prime, initialUrlParams) {
     const requestId = PRIME_REQUEST_STATE.start(prime);
 
     try {
@@ -1332,12 +1344,14 @@ async function loadPrimeData(prime) {
         
         // Update grid to match data bounds
         addGridLines();
-        
-        Plot(view, renderGeneration);
+
+        // Position the camera before plotting so a deep-linked viewport renders
+        // before the off-screen remainder of a large dataset.
+        if (initialUrlParams) processUrlParams(initialUrlParams);
+        else setCameraToDefaultRegion(prime);
+
+        Plot(view, renderGeneration, getActiveWindowBounds());
         createPrimeSelector();
-        
-        // Set default region
-        setCameraToDefaultRegion(prime);
         
         // Update page title like original
         document.title = "Adams E₂ for S⁰ at prime " + prime;
@@ -1387,10 +1401,8 @@ function initializeSystem() {
     CURRENT_PRIME = params.prime;
     PRIME_REQUEST_STATE = RENDER_CORE.createPrimeRequestState(CURRENT_PRIME);
     
-    // Load initial prime data
-    loadPrimeData(CURRENT_PRIME).then(function() {
-        processUrlParams(params);
-    });
+    // Load initial prime data and prioritize the URL-selected viewport.
+    loadPrimeData(CURRENT_PRIME, params);
     
     // Set up window resize handler
     window.addEventListener("resize", windowResize);

@@ -18,10 +18,6 @@
     }
   }
 
-  function createEdgeCursor() {
-    return {source: 0, targetOffset: 0};
-  }
-
   const CALLOUT_DIRECTIONS = [
     "northeast",
     "northwest",
@@ -249,46 +245,9 @@
     return best;
   }
 
-  function advanceEdgeCursor(offsets, state) {
-    while (
-      state.source < offsets.length - 1 &&
-      state.targetOffset >= offsets[state.source + 1]
-    ) {
-      state.source += 1;
-    }
-  }
-
-  function takeEdgeBatch(offsets, targets, state, limit) {
-    const batch = [];
-
-    advanceEdgeCursor(offsets, state);
-    while (batch.length < limit && !edgeCursorDone(offsets, state)) {
-      if (state.targetOffset < offsets[state.source]) {
-        state.targetOffset = offsets[state.source];
-      }
-
-      batch.push([state.source, targets[state.targetOffset]]);
-      state.targetOffset += 1;
-      advanceEdgeCursor(offsets, state);
-    }
-
-    return batch;
-  }
-
-  function edgeCursorDone(offsets, state) {
-    return state.source >= offsets.length - 1;
-  }
-
-  function buildRenderEdgeArrays(view) {
-    const edgeOffsets = [0];
-    const edgeTargets = [];
-    for (let source = 0; source < view.count; source += 1) {
-      for (const target of view.targets(source)) {
-        edgeTargets.push(target);
-      }
-      edgeOffsets.push(edgeTargets.length);
-    }
-    return {edgeOffsets, edgeTargets};
+  function layoutIsInsideBounds(layout, bounds) {
+    return layout.x >= bounds.xMin && layout.x <= bounds.xMax &&
+      layout.y >= bounds.yMin && layout.y <= bounds.yMax;
   }
 
   function targetsForSelection(view, datasetKey, index) {
@@ -411,69 +370,136 @@
     };
   }
 
-  function createProgressivePlotController(options) {
+  function expandBounds(bounds, factor) {
+    const width = bounds.xMax - bounds.xMin;
+    const height = bounds.yMax - bounds.yMin;
+    return {
+      xMin: bounds.xMin - width * factor,
+      xMax: bounds.xMax + width * factor,
+      yMin: bounds.yMin - height * factor,
+      yMax: bounds.yMax + height * factor,
+    };
+  }
+
+  function createHorizontalSpatialIndex(view, bucketWidth) {
+    const buckets = new Map();
+    for (let index = 0; index < view.count; index += 1) {
+      const bucket = Math.floor(view.layout(index).x / bucketWidth);
+      if (!buckets.has(bucket)) buckets.set(bucket, []);
+      buckets.get(bucket).push(index);
+    }
+
+    return {
+      query(bounds) {
+        const nodes = [];
+        const firstBucket = Math.floor(bounds.xMin / bucketWidth);
+        const lastBucket = Math.floor(bounds.xMax / bucketWidth);
+        for (let bucket = firstBucket; bucket <= lastBucket; bucket += 1) {
+          for (const index of buckets.get(bucket) || []) {
+            const layout = view.layout(index);
+            if (layoutIsInsideBounds(layout, bounds)) {
+              nodes.push({index, layout});
+            }
+          }
+        }
+        return nodes;
+      },
+    };
+  }
+
+  function createViewportPlotController(options) {
     const generations = options.generations || new RenderGenerations();
     const schedule = options.requestAnimationFrame;
-    const batchSize = options.batchSize;
-    const edgeBatchSize = options.edgeBatchSize;
+    const bufferFactor = options.bufferFactor === undefined ?
+      1 : options.bufferFactor;
+    const bucketWidth = options.bucketWidth || 32;
+    const refreshMargin = options.refreshMargin === undefined ?
+      0.25 : options.refreshMargin;
+    const maximumRetainedFactor = options.maximumRetainedFactor || 6;
+    let active = null;
 
-    function start(view, generation) {
-      const activeGeneration = generation || generations.begin(view.key);
-      if (options.clear) options.clear(view);
+    function needsRefresh(renderBounds, viewportBounds) {
+      const guarded = expandBounds(viewportBounds, refreshMargin);
+      const contained = guarded.xMin >= renderBounds.xMin &&
+        guarded.xMax <= renderBounds.xMax &&
+        guarded.yMin >= renderBounds.yMin &&
+        guarded.yMax <= renderBounds.yMax;
+      const renderWidth = renderBounds.xMax - renderBounds.xMin;
+      const renderHeight = renderBounds.yMax - renderBounds.yMin;
+      const viewportWidth = viewportBounds.xMax - viewportBounds.xMin;
+      const viewportHeight = viewportBounds.yMax - viewportBounds.yMin;
+      return !contained ||
+        renderWidth > viewportWidth * maximumRetainedFactor ||
+        renderHeight > viewportHeight * maximumRetainedFactor;
+    }
 
-      const edges = buildRenderEdgeArrays(view);
-      const state = {
-        nodeIndex: 0,
-        edgeCursor: createEdgeCursor(),
-        edgeOffsets: edges.edgeOffsets,
-        edgeTargets: edges.edgeTargets,
-      };
-
-      function step() {
-        if (!generations.isActive(activeGeneration)) return;
-
-        const nodes = [];
-        while (state.nodeIndex < view.count && nodes.length < batchSize) {
-          const index = state.nodeIndex;
-          nodes.push({index, layout: view.layout(index)});
-          state.nodeIndex += 1;
-        }
-        if (nodes.length > 0 && generations.isActive(activeGeneration)) {
-          options.appendNodes(view, nodes, activeGeneration);
-        }
-        if (!generations.isActive(activeGeneration)) return;
-
-        const edgePairs = takeEdgeBatch(
-          state.edgeOffsets,
-          state.edgeTargets,
-          state.edgeCursor,
-          edgeBatchSize,
-        ).map(([source, target]) => ({
-          source,
-          target,
-          sourceLayout: view.layout(source),
-          targetLayout: view.layout(target),
-        }));
-        if (edgePairs.length > 0 && generations.isActive(activeGeneration)) {
-          options.appendEdges(view, edgePairs, activeGeneration);
-        }
-        if (!generations.isActive(activeGeneration)) return;
-
-        if (
-          state.nodeIndex < view.count ||
-          !edgeCursorDone(state.edgeOffsets, state.edgeCursor)
-        ) {
-          schedule(step);
-        } else if (options.finalize) {
-          options.finalize(view, activeGeneration);
+    function render(state, viewportBounds) {
+      if (active !== state || !generations.isActive(state.generation)) return;
+      const renderBounds = expandBounds(viewportBounds, bufferFactor);
+      const nodes = state.index.query(renderBounds);
+      const included = new Set(nodes.map(node => node.index));
+      const edges = [];
+      for (const node of nodes) {
+        for (const target of state.view.targets(node.index)) {
+          if (!included.has(target)) continue;
+          edges.push({
+            source: node.index,
+            target,
+            sourceLayout: node.layout,
+            targetLayout: state.view.layout(target),
+          });
         }
       }
 
-      step();
+      if (options.clear) options.clear(state.view);
+      if (nodes.length > 0) {
+        options.appendNodes(state.view, nodes, state.generation);
+      }
+      if (edges.length > 0) {
+        options.appendEdges(state.view, edges, state.generation);
+      }
+      state.renderBounds = renderBounds;
+      if (options.finalize) options.finalize(state.view, state.generation);
+    }
+
+    function start(view, generation, viewportBounds) {
+      const activeGeneration = generation || generations.begin(view.key);
+      active = {
+        view,
+        generation: activeGeneration,
+        index: createHorizontalSpatialIndex(view, bucketWidth),
+        renderBounds: null,
+        pendingViewportBounds: null,
+        frameQueued: false,
+      };
+      render(active, viewportBounds);
       return activeGeneration;
     }
 
-    return {start};
+    function update(viewportBounds) {
+      if (!active || !generations.isActive(active.generation)) return false;
+      active.pendingViewportBounds = viewportBounds;
+      if (!needsRefresh(active.renderBounds, viewportBounds)) return false;
+      if (active.frameQueued) return true;
+
+      const state = active;
+      state.frameQueued = true;
+      schedule(() => {
+        state.frameQueued = false;
+        const latestViewportBounds = state.pendingViewportBounds;
+        state.pendingViewportBounds = null;
+        if (
+          active === state &&
+          latestViewportBounds &&
+          needsRefresh(state.renderBounds, latestViewportBounds)
+        ) {
+          render(state, latestViewportBounds);
+        }
+      });
+      return true;
+    }
+
+    return {start, update};
   }
 
   const COMPACT_DATA_BASE = "E2_js_data/compact/";
@@ -518,7 +544,7 @@
     chooseCalloutPlacement,
     createSelectionLifecycle,
     createPrimeRequestState,
-    createProgressivePlotController,
+    createViewportPlotController,
     createPointerClickTracker,
     syncPrimeControls,
     targetsForSelection,
