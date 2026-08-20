@@ -14,24 +14,53 @@
 // Application state - tracks current mode (currently only "start" mode)
 var STATE = "start";
 
-// Global storage for the currently loaded prime's data
+// Global storage for the currently loaded compact dataset view
 var DATA_JSON = {};
+var ACTIVE_VIEW = null;
+var DATA_LOADER = null;
+var PLOT_CONTROLLER = null;
+var SELECTION_LIFECYCLE = null;
+
+var ROOT = typeof globalThis !== "undefined" ? globalThis : window;
+var RENDER_CORE = ROOT.AdamsE2RenderCore;
+var DATA_LOADER_API = ROOT.AdamsE2DataLoader;
+var RENDER_GENERATIONS = new RENDER_CORE.RenderGenerations();
+
+function getRuntimeManifest() {
+    return ROOT.__MYADAMSP2_E2_MANIFEST_V2__ || null;
+}
+
+function getDatasetEntries() {
+    const manifest = getRuntimeManifest();
+    return Object.keys(manifest.datasets)
+        .map(key => manifest.datasets[key])
+        .sort((left, right) => left.prime - right.prime);
+}
+
+function getManifestEntryForPrime(prime) {
+    return getDatasetEntries().find(entry => entry.prime === prime) || null;
+}
+
+function getAvailablePrimes() {
+    return getDatasetEntries().map(entry => entry.prime);
+}
 
 // Pointer/touch interaction tracking
 const pointerCache = [];
+const POINTER_CLICK_TRACKER = RENDER_CORE.createPointerClickTracker();
 var prevPtsDist = null, prevPt = null, prevPinchScale = null;
 var isPointerActive = false;
-var activePointerId = null;
 
 // Calculate maximum bounds based on actual data to ensure proper viewing area
-function calculateMaxBounds(data_json) {
+function calculateMaxBounds(view) {
     let x_max = 0;
     let y_max = 0;
     
-    if (data_json && data_json.bullets) {
-        for (const bullet of data_json.bullets) {
-            x_max = Math.max(x_max, bullet.x);
-            y_max = Math.max(y_max, bullet.y);
+    if (view && typeof view.count === "number") {
+        for (let index = 0; index < view.count; index++) {
+            const layout = view.layout(index);
+            x_max = Math.max(x_max, layout.x);
+            y_max = Math.max(y_max, layout.y);
         }
     }
     
@@ -44,21 +73,8 @@ function calculateMaxBounds(data_json) {
 
 // Calculate maximum t-value for a given prime to show data range
 function getTmaxForPrime(prime) {
-    const globalVarName = 'DATA_JSON_p_' + prime + '_S0';
-    if (window[globalVarName]) {
-        const data = window[globalVarName];
-        let tmax = 0;
-        if (data && data.bullets) {
-            for (const bullet of data.bullets) {
-                const t = Math.round(bullet.x + bullet.y); // t = x + y in Adams grading
-                if (t > tmax) {
-                    tmax = t;
-                }
-            }
-        }
-        return Math.floor(tmax); // Return as integer
-    }
-    return 0;
+    const entry = getManifestEntryForPrime(prime);
+    return entry ? entry.effectiveTMax : 0;
 }
 
 /* 
@@ -77,6 +93,10 @@ var CONFIG = {
     camera_zoom_rate: 1.06,        // Zoom sensitivity
     camera_translate_pixels: 100,  // Pan distance per keypress (pixels)
     plot_batchSize: 1000,          // Number of elements to render per animation frame
+    point_label_collision_padding: 4,
+    point_label_zoom_reflow_delay: 120,
+    point_label_gaps: [10, 34, 64],
+    point_label_viewport_padding: 8,
 };
 
 var CONFIG_DYNAMIC = {
@@ -87,8 +107,9 @@ var CONFIG_DYNAMIC = {
 };
 
 // Available primes and currently selected prime
-const AVAILABLE_PRIMES = [3, 5, 7, 11, 13];
+var AVAILABLE_PRIMES = getAvailablePrimes();
 var CURRENT_PRIME = 3;
+var PRIME_REQUEST_STATE = RENDER_CORE.createPrimeRequestState(CURRENT_PRIME);
 
 /* ===== MATHEMATICAL UTILITIES ===== */
 
@@ -157,6 +178,7 @@ const camera = {
         this.o_svg = new Vector(clip(origin_sp1.x, x_min, x_max), clip(origin_sp1.y, y_min, y_max));
         camera.setTransform();
         updateAxisLabels();
+        schedulePointLabelZoomReflow();
     },
     
     // Pan the view by a delta vector (pixels)
@@ -193,15 +215,25 @@ const camera = {
     // Apply current transform to the plot group
     setTransform: function () {
         g_plot.setAttribute("transform", "translate(" + this.o_svg.x + "," + this.o_svg.y + ") scale(" + this.unit_svg + ")");
+        schedulePointLabelPosition(false);
     }
 };
 
 /* ===== GLOBAL ELEMENT REFERENCES ===== */
 
 // SVG and group elements for the visualization
-var svg_ss, g_svg, g_plot, g_bullets, g_strtlines, g_labels, g_xaxis, g_yaxis;
+var svg_ss, g_svg, g_plot, g_bullets, g_strtlines, g_xaxis, g_yaxis;
 var circle_mouseon, rect_selected, g_prod, div_menu_style;
+var point_label, point_label_math, point_label_leader, div_menubar;
 var bullet_selected = null;
+var POINT_LABEL_STATE = {
+    generation: 0,
+    frame: null,
+    zoomTimer: null,
+    placement: null,
+    visible: false,
+    rechooseRequested: false,
+};
 
 /* ===== INITIALIZATION AND SETUP ===== */
 
@@ -219,12 +251,15 @@ function initializeElements() {
     };
     
     g_strtlines = document.getElementById("g_strtlines");
-    g_labels = document.getElementById("g_labels");
     g_xaxis = document.getElementById("g_xaxis");
     g_yaxis = document.getElementById("g_yaxis");
     circle_mouseon = document.getElementById("circle_mouseon");
     rect_selected = document.getElementById("rect_selected");
     g_prod = document.getElementById("g_prod");
+    point_label = document.getElementById("point_label");
+    point_label_math = document.getElementById("point_label_math");
+    point_label_leader = document.getElementById("point_label_leader");
+    div_menubar = document.getElementById("div_menubar");
     div_menu_style = document.getElementById("div_menu").style;
     
     // Set up SVG dimensions and coordinate system
@@ -241,6 +276,8 @@ function windowResize() {
     // Update dynamic config based on new window size
     CONFIG_DYNAMIC.camera_unit_screen_min = (window.innerWidth - CONFIG.margin_x) / (CONFIG.x_max + 1);
     CONFIG_DYNAMIC.camera_unit_screen_max = Math.min(window.innerWidth, window.innerHeight) - 30;
+    updateAxisLabels();
+    schedulePointLabelPosition(true);
 }
 
 /* ===== AXIS AND GRID SYSTEM ===== */
@@ -303,22 +340,13 @@ function getDistPts() {
     return p1Screen.dist(p2Screen);
 }
 
-// Clean up pointer cache to prevent accumulation of stale pointers
-function cleanupPointerCache() {
-    // Simply ensure we don't accumulate more than 2 pointers
-    // This handles the case where pointer events might get "stuck"
-    if (pointerCache.length > 2) {
-        pointerCache.length = 2;
-    }
-}
-
 // Cleanup function for pointer state
 function cleanupPointerState() {
     pointerCache.length = 0;
+    POINTER_CLICK_TRACKER.cancel();
     prevPt = null;
     prevPtsDist = null;
     isPointerActive = false;
-    activePointerId = null;
     
     // Remove global listeners
     document.removeEventListener('pointerup', handleGlobalPointerUp);
@@ -327,15 +355,11 @@ function cleanupPointerState() {
 
 // Global pointer event handlers for out-of-viewport release
 function handleGlobalPointerUp(event) {
-    if (event.pointerId === activePointerId) {
-        cleanupPointerState();
-    }
+    finishPointer(event, false);
 }
 
 function handleGlobalPointerCancel(event) {
-    if (event.pointerId === activePointerId) {
-        cleanupPointerState();
-    }
+    finishPointer(event, false);
 }
 
 // Handle pointer down events (mouse down or touch start)
@@ -343,16 +367,13 @@ function on_pointerdown(event) {
     if (STATE === "start" && event.button === 0) { // Only handle left mouse button
         div_menu_style.visibility = "hidden"; // Hide context menu
         pointerCache.push(event);
+        POINTER_CLICK_TRACKER.down(event.pointerId, event.clientX, event.clientY);
 
         // Track active pointer state
         isPointerActive = true;
-        activePointerId = event.pointerId;
 
         // Capture pointer to track movements outside element
         event.target.setPointerCapture(event.pointerId);
-
-        // Clean up cache if needed
-        cleanupPointerCache();
 
         // Add global pointer event listeners to handle out-of-viewport release
         document.addEventListener('pointerup', handleGlobalPointerUp);
@@ -370,6 +391,7 @@ function on_pointerdown(event) {
 // Handle pointer move events (mouse move or touch move)
 function on_pointermove(event) {
     if (STATE === "start") {
+        POINTER_CLICK_TRACKER.move(event.pointerId, event.clientX, event.clientY);
         let index = 0;
         // Update the moving pointer in cache
         for (; index < pointerCache.length; index++) {
@@ -378,9 +400,6 @@ function on_pointermove(event) {
                 break;
             }
         }
-
-        // Clean up cache if needed (in case of weird pointer behavior)
-        cleanupPointerCache();
 
         // Single pointer movement - pan the camera
         if (pointerCache.length === 1 && index < pointerCache.length) {
@@ -412,36 +431,48 @@ function removeEvent(event_id) {
     return false;
 }
 
+function updatePointerStateAfterRemoval() {
+    if (pointerCache.length === 0) {
+        prevPt = null;
+        prevPtsDist = null;
+        isPointerActive = false;
+    } else if (pointerCache.length === 1) {
+        prevPt = new Vector(pointerCache[0].clientX, pointerCache[0].clientY);
+        prevPtsDist = null;
+    } else if (pointerCache.length === 2) {
+        prevPt = null;
+        prevPtsDist = getDistPts();
+    } else {
+        prevPt = null;
+        prevPtsDist = null;
+    }
+}
+
+function finishPointer(event, allowActivation) {
+    const clickResult = POINTER_CLICK_TRACKER.up(event.pointerId);
+    if (!clickResult.removed) return;
+
+    removeEvent(event.pointerId);
+    updatePointerStateAfterRemoval();
+
+    if (allowActivation && clickResult.activate) {
+        const bullet = event.target;
+        if (bullet.classList.contains("b")) select_bullet(bullet);
+        else clearSelection();
+    }
+
+    if (pointerCache.length === 0) {
+        document.removeEventListener('pointerup', handleGlobalPointerUp);
+        document.removeEventListener('pointercancel', handleGlobalPointerCancel);
+    }
+}
+
 // Handle pointer up events (mouse up or touch end)
 function on_pointerup(event) {
     if (STATE === "start" && event.button === 0) {
         // Release pointer capture
         event.target.releasePointerCapture(event.pointerId);
-
-        if (removeEvent(event.pointerId)) {
-            // Update tracking after pointer removal
-            if (pointerCache.length === 0) {
-                prevPt = null;
-                isPointerActive = false;
-                activePointerId = null;
-            } else if (pointerCache.length === 1) {
-                prevPt = new Vector(pointerCache[0].clientX, pointerCache[0].clientY);
-            } else if (pointerCache.length === 2) {
-                prevPtsDist = getDistPts();
-            }
-        }
-
-        // Check if a bullet was clicked
-        const bullet = event.target;
-        if (bullet.classList.contains("b")) select_bullet(bullet);
-
-        cleanupPointerCache();
-        
-        // Remove global listeners if no more active pointers
-        if (pointerCache.length === 0) {
-            document.removeEventListener('pointerup', handleGlobalPointerUp);
-            document.removeEventListener('pointercancel', handleGlobalPointerCancel);
-        }
+        finishPointer(event, true);
     }
 }
 
@@ -455,36 +486,367 @@ function handleWindowBlur() {
 
 /* ===== BULLET SELECTION AND PRODUCT VISUALIZATION ===== */
 
-// Select a bullet and highlight its products
-function select_bullet(bullet) {
-    // Deselect previously selected bullet
-    if (bullet_selected !== null) {
-        bullet_selected.removeAttribute("fill");
-        bullet_selected = null;
-    }
-    
-    // Select new bullet
-    bullet_selected = bullet;
-    bullet_selected.setAttribute("fill", "red"); // Highlight selected bullet in red
-    
-    // Position selection rectangle
-    rect_selected.setAttribute("x", Math.round(bullet.getAttribute("cx")) - 0.5);
-    rect_selected.setAttribute("y", Math.round(bullet.getAttribute("cy")) - 0.5);
+function screenLayout(index) {
+    const layout = ACTIVE_VIEW.layout(index);
+    const svgPoint = camera.world2svg(new Vector(layout.x, layout.y));
+    return {
+        x: svgPoint.x,
+        y: window.innerHeight - svgPoint.y,
+        radius: layout.r * camera.unit_svg,
+        worldRadius: layout.r,
+    };
+}
 
-    // Clear previous product highlights
-    g_prod.innerHTML = "";
-    let prods = DATA_JSON["prods"][bullet.dataset.i];
-    
-    // Show products as green circles
-    if (prods) {
-        for (const j in prods) {
-            for (const i of prods[j]['p']) {
-                const bullet2 = DATA_JSON["bullets"][i];
-                const circle_prod = '<circle class="p" cx="' + bullet2.x + '" cy="' + bullet2.y + '" r="' + (bullet2['r'] * 1.7) + '" fill="green" opacity="0.7" data-i=' + i + '></circle>';
-                g_prod.insertAdjacentHTML("beforeend", circle_prod);
-            }
+function pointLabelBounds() {
+    const padding = CONFIG.point_label_viewport_padding;
+    const left = CONFIG.margin_x + padding;
+    const top = padding;
+    return {
+        left,
+        top,
+        right: Math.max(left, window.innerWidth - padding),
+        bottom: Math.max(top, window.innerHeight - CONFIG.margin_y - padding),
+    };
+}
+
+function pointLabelMenubarRect() {
+    const rect = div_menubar.getBoundingClientRect();
+    return {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+    };
+}
+
+function rectanglesIntersect(left, right) {
+    return left.left < right.right && left.left + left.width > right.left &&
+        left.top < right.bottom && left.top + left.height > right.top;
+}
+
+function pointLabelCandidateEnvelope(anchor, labelSize) {
+    const maximumGap = Math.max(...CONFIG.point_label_gaps);
+    const padding = CONFIG.point_label_collision_padding;
+    const horizontal = anchor.radius + maximumGap + labelSize.width + padding;
+    const vertical = anchor.radius + maximumGap + labelSize.height + padding;
+    return {
+        left: anchor.x - horizontal,
+        top: anchor.y - vertical,
+        right: anchor.x + horizontal,
+        bottom: anchor.y + vertical,
+    };
+}
+
+function pointLabelObstacles(selection, anchor, labelSize) {
+    const envelope = pointLabelCandidateEnvelope(anchor, labelSize);
+    const selectedTargets = new Set(selection.targets);
+    const screenLayouts = new Array(ACTIVE_VIEW.count);
+    const pointObstacles = [];
+
+    for (let index = 0; index < ACTIVE_VIEW.count; index++) {
+        const layout = screenLayout(index);
+        screenLayouts[index] = layout;
+        if (index === selection.index) continue;
+        const radius = selectedTargets.has(index) ?
+            layout.worldRadius * 1.7 * camera.unit_svg : layout.radius;
+        if (
+            layout.x + radius >= envelope.left &&
+            layout.x - radius <= envelope.right &&
+            layout.y + radius >= envelope.top &&
+            layout.y - radius <= envelope.bottom
+        ) {
+            pointObstacles.push({x: layout.x, y: layout.y, radius});
         }
     }
+
+    const segmentObstacles = [];
+    ACTIVE_VIEW.forEachEdge(function(source, target) {
+        const sourceLayout = screenLayouts[source];
+        const targetLayout = screenLayouts[target];
+        const width = Math.min(
+            sourceLayout.worldRadius,
+            targetLayout.worldRadius
+        ) * camera.unit_svg / 4;
+        if (
+            Math.max(sourceLayout.x, targetLayout.x) + width / 2 >= envelope.left &&
+            Math.min(sourceLayout.x, targetLayout.x) - width / 2 <= envelope.right &&
+            Math.max(sourceLayout.y, targetLayout.y) + width / 2 >= envelope.top &&
+            Math.min(sourceLayout.y, targetLayout.y) - width / 2 <= envelope.bottom
+        ) {
+            segmentObstacles.push({
+                x1: sourceLayout.x,
+                y1: sourceLayout.y,
+                x2: targetLayout.x,
+                y2: targetLayout.y,
+                width,
+            });
+        }
+    });
+    return {pointObstacles, segmentObstacles};
+}
+
+function choosePointLabelPlacement(selection, anchor, labelSize) {
+    const obstacles = pointLabelObstacles(selection, anchor, labelSize);
+    return RENDER_CORE.chooseCalloutPlacement({
+        anchor,
+        labelSize,
+        bounds: pointLabelBounds(),
+        forbiddenRects: [pointLabelMenubarRect()],
+        pointObstacles: obstacles.pointObstacles,
+        segmentObstacles: obstacles.segmentObstacles,
+        gaps: CONFIG.point_label_gaps,
+        collisionPadding: CONFIG.point_label_collision_padding,
+    });
+}
+
+function applyPointLabelPlacement(placement) {
+    point_label.style.left = Math.round(placement.left) + "px";
+    point_label.style.top = Math.round(placement.top) + "px";
+    point_label_leader.setAttribute("x1", placement.leader.x1);
+    point_label_leader.setAttribute("y1", placement.leader.y1);
+    point_label_leader.setAttribute("x2", placement.leader.x2);
+    point_label_leader.setAttribute("y2", placement.leader.y2);
+    point_label_leader.setAttribute("visibility", "visible");
+    point_label.style.visibility = "visible";
+}
+
+function translatedPointLabelPlacement(anchor, placement) {
+    const deltaX = anchor.x - placement.anchorX;
+    const deltaY = anchor.y - placement.anchorY;
+    return Object.assign({}, placement, {
+        left: anchor.x + placement.offsetX,
+        top: anchor.y + placement.offsetY,
+        anchorX: anchor.x,
+        anchorY: anchor.y,
+        leader: {
+            x1: placement.leader.x1 + deltaX,
+            y1: placement.leader.y1 + deltaY,
+            x2: placement.leader.x2 + deltaX,
+            y2: placement.leader.y2 + deltaY,
+        },
+    });
+}
+
+function pointLabelPlacementNeedsRechoose(placement) {
+    const bounds = pointLabelBounds();
+    if (
+        placement.left < bounds.left ||
+        placement.top < bounds.top ||
+        placement.left + placement.width > bounds.right ||
+        placement.top + placement.height > bounds.bottom
+    ) {
+        return true;
+    }
+    return rectanglesIntersect(placement, pointLabelMenubarRect());
+}
+
+function positionPointLabel(rechoose, generation) {
+    if (
+        generation !== POINT_LABEL_STATE.generation ||
+        !POINT_LABEL_STATE.visible
+    ) {
+        return;
+    }
+    const selection = getSelectionLifecycle().current();
+    if (selection === null || selection.datasetKey !== ACTIVE_VIEW.key) return;
+
+    const anchor = screenLayout(selection.index);
+    let placement;
+    if (rechoose || POINT_LABEL_STATE.placement === null) {
+        const labelRect = point_label.getBoundingClientRect();
+        placement = choosePointLabelPlacement(selection, anchor, {
+            width: labelRect.width,
+            height: labelRect.height,
+        });
+        placement.anchorX = anchor.x;
+        placement.anchorY = anchor.y;
+    } else {
+        placement = translatedPointLabelPlacement(
+            anchor,
+            POINT_LABEL_STATE.placement
+        );
+    }
+
+    POINT_LABEL_STATE.placement = placement;
+    applyPointLabelPlacement(placement);
+    if (!rechoose && pointLabelPlacementNeedsRechoose(placement)) {
+        schedulePointLabelPosition(true);
+    }
+}
+
+function schedulePointLabelPosition(rechoose) {
+    if (!POINT_LABEL_STATE.visible) return;
+    POINT_LABEL_STATE.rechooseRequested =
+        POINT_LABEL_STATE.rechooseRequested || rechoose;
+    if (POINT_LABEL_STATE.frame !== null) return;
+    const generation = POINT_LABEL_STATE.generation;
+    POINT_LABEL_STATE.frame = requestAnimationFrame(function() {
+        POINT_LABEL_STATE.frame = null;
+        if (
+            generation !== POINT_LABEL_STATE.generation ||
+            !POINT_LABEL_STATE.visible
+        ) {
+            return;
+        }
+        const shouldRechoose = POINT_LABEL_STATE.rechooseRequested;
+        POINT_LABEL_STATE.rechooseRequested = false;
+        positionPointLabel(shouldRechoose, generation);
+    });
+}
+
+function schedulePointLabelZoomReflow() {
+    if (!POINT_LABEL_STATE.visible) return;
+    if (POINT_LABEL_STATE.zoomTimer !== null) {
+        clearTimeout(POINT_LABEL_STATE.zoomTimer);
+    }
+    const generation = POINT_LABEL_STATE.generation;
+    POINT_LABEL_STATE.zoomTimer = setTimeout(function() {
+        POINT_LABEL_STATE.zoomTimer = null;
+        if (
+            generation === POINT_LABEL_STATE.generation &&
+            POINT_LABEL_STATE.visible
+        ) {
+            schedulePointLabelPosition(true);
+        }
+    }, CONFIG.point_label_zoom_reflow_delay);
+}
+
+function hidePointLabel() {
+    POINT_LABEL_STATE.generation += 1;
+    if (POINT_LABEL_STATE.frame !== null) {
+        cancelAnimationFrame(POINT_LABEL_STATE.frame);
+        POINT_LABEL_STATE.frame = null;
+    }
+    if (POINT_LABEL_STATE.zoomTimer !== null) {
+        clearTimeout(POINT_LABEL_STATE.zoomTimer);
+        POINT_LABEL_STATE.zoomTimer = null;
+    }
+    POINT_LABEL_STATE.placement = null;
+    POINT_LABEL_STATE.visible = false;
+    POINT_LABEL_STATE.rechooseRequested = false;
+    if (point_label) {
+        point_label.hidden = true;
+        point_label.style.visibility = "hidden";
+        point_label.removeAttribute("data-latex");
+        point_label.removeAttribute("data-key");
+        point_label.removeAttribute("data-index");
+    }
+    if (point_label_math) point_label_math.replaceChildren();
+    if (point_label_leader) {
+        point_label_leader.setAttribute("visibility", "hidden");
+    }
+}
+
+function showPointLabel(selection) {
+    POINT_LABEL_STATE.generation += 1;
+    const generation = POINT_LABEL_STATE.generation;
+    if (POINT_LABEL_STATE.frame !== null) {
+        cancelAnimationFrame(POINT_LABEL_STATE.frame);
+        POINT_LABEL_STATE.frame = null;
+    }
+    if (POINT_LABEL_STATE.zoomTimer !== null) {
+        clearTimeout(POINT_LABEL_STATE.zoomTimer);
+        POINT_LABEL_STATE.zoomTimer = null;
+    }
+    POINT_LABEL_STATE.placement = null;
+    POINT_LABEL_STATE.rechooseRequested = false;
+
+    const tex = selection.label;
+    point_label.dataset.latex = tex;
+    point_label.dataset.key = selection.datasetKey;
+    point_label.dataset.index = String(selection.index);
+    point_label_math.replaceChildren();
+    try {
+        if (!ROOT.katex || typeof ROOT.katex.render !== "function") {
+            throw new Error("KaTeX runtime is unavailable");
+        }
+        ROOT.katex.render(tex, point_label_math, {
+            displayMode: false,
+            throwOnError: true,
+            trust: false,
+            strict: "error",
+        });
+    } catch (error) {
+        point_label_math.textContent = tex;
+        console.error("Could not typeset selected monomial label.", error);
+    }
+
+    point_label.hidden = false;
+    point_label.style.visibility = "hidden";
+    POINT_LABEL_STATE.visible = true;
+    schedulePointLabelPosition(true);
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function() {
+            if (
+                generation === POINT_LABEL_STATE.generation &&
+                POINT_LABEL_STATE.visible
+            ) {
+                schedulePointLabelPosition(true);
+            }
+        });
+    }
+}
+
+function getSelectionLifecycle() {
+    if (SELECTION_LIFECYCLE === null) {
+        SELECTION_LIFECYCLE = RENDER_CORE.createSelectionLifecycle({
+            clear(selection) {
+                if (selection !== null) selection.node.removeAttribute("fill");
+                bullet_selected = null;
+                rect_selected.setAttribute("x", "-1000");
+                rect_selected.setAttribute("y", "-1000");
+                g_prod.replaceChildren();
+                hidePointLabel();
+            },
+            show(selection) {
+                bullet_selected = selection.node;
+                bullet_selected.setAttribute("fill", "red");
+                rect_selected.setAttribute(
+                    "x",
+                    Math.round(bullet_selected.getAttribute("cx")) - 0.5
+                );
+                rect_selected.setAttribute(
+                    "y",
+                    Math.round(bullet_selected.getAttribute("cy")) - 0.5
+                );
+
+                for (const target of selection.targets) {
+                    const layout = ACTIVE_VIEW.layout(target);
+                    const circle = document.createElementNS(
+                        "http://www.w3.org/2000/svg",
+                        "circle"
+                    );
+                    circle.setAttribute("class", "p product-target");
+                    circle.setAttribute("cx", layout.x);
+                    circle.setAttribute("cy", layout.y);
+                    circle.setAttribute("r", layout.r * 1.7);
+                    circle.setAttribute("fill", "green");
+                    circle.setAttribute("opacity", "0.7");
+                    circle.dataset.key = ACTIVE_VIEW.key;
+                    circle.dataset.i = target;
+                    g_prod.appendChild(circle);
+                }
+
+                showPointLabel(selection);
+            },
+        });
+    }
+    return SELECTION_LIFECYCLE;
+}
+
+function clearSelection() {
+    getSelectionLifecycle().clear();
+}
+
+// Select a bullet, display its canonical monomial, and highlight its products.
+function select_bullet(bullet) {
+    getSelectionLifecycle().select(
+        ACTIVE_VIEW,
+        bullet.dataset.key,
+        parseInt(bullet.dataset.i, 10),
+        bullet
+    );
 }
 
 /* ===== ALTERNATIVE INPUT METHODS ===== */
@@ -728,9 +1090,10 @@ function on_about_metadata() {
     message += "\n";
     message += "Developed by: Weinan Lin and Yu Zhang\n";
     
-    // Get time info from current data
-    if (DATA_JSON && DATA_JSON.time) {
-        const formattedTime = formatTimestamp(DATA_JSON.time);
+    // Get time info from current manifest entry
+    const currentEntry = getManifestEntryForPrime(CURRENT_PRIME);
+    if (currentEntry && currentEntry.generatedAt) {
+        const formattedTime = formatTimestamp(currentEntry.generatedAt);
         message += `Last updated: ${formattedTime}`;
     } else {
         message += "Last updated: Unknown";
@@ -741,7 +1104,7 @@ function on_about_metadata() {
 
 // Show help dialog with navigation instructions
 function showHelp() {
-    const helpText = "Navigation:\n• Pan: Click and drag, or use the arrow keys\n• Zoom: Mouse wheel, pinch gesture, or +/- keys\n• Products: Black lines show multiplication by a₀ and h₀\n• Select element: Click on any dot. Product results are highlighted with green circles\n\nURL Parameters:\n• prime=3,5,7,11,13 - Select an odd prime\n• scale=2 - Set zoom level (larger values = more zoomed in)\n• x=10 - Set horizontal coordinate for the center viewport\n• y=5 - Set vertical coordinate for the center viewport\n\nExamples URLs:\n• unified_viewer.html?prime=5\n• unified_viewer.html?prime=3&scale=2&x=140&y=20\n• unified_viewer.html?prime=7&scale=0.5&x=500&y=40";
+    const helpText = "Navigation:\n• Pan: Click and drag, or use the arrow keys\n• Zoom: Mouse wheel, pinch gesture, or +/- keys\n• Select: Click a dot to select it and show its canonical monomial name\n• Support: Black lines show the unlabeled union of multiplication support by x₀ and x₁ (classically a₀ and h₀)\n• Targets: Green dots show the selected dot’s product targets\n• Clear: Click chart space outside any dot, or select a different prime, to clear the selection, its name, and its product targets\n\nURL Parameters:\n• prime=3,5,7,11,13 - Select an odd prime\n• scale=2 - Set zoom level (larger values = more zoomed in)\n• x=10 - Set horizontal coordinate for the center viewport\n• y=5 - Set vertical coordinate for the center viewport\n\nExamples URLs:\n• unified_viewer.html?prime=5\n• unified_viewer.html?prime=3&scale=2&x=140&y=20\n• unified_viewer.html?prime=7&scale=0.5&x=500&y=40";
     
     showCustomModal("Help", helpText);
 }
@@ -781,99 +1144,68 @@ function initHandlers() {
 
 // Clear all plotted elements from the visualization
 function clearPlot() {
+    clearSelection();
     g_bullets["black"].innerHTML = "";
     g_bullets["blue"].innerHTML = "";
     g_bullets["grey"].innerHTML = "";
     g_strtlines.innerHTML = "";
-    g_prod.innerHTML = "";
-    g_labels.innerHTML = "";
-    
-    // Clear selection state
-    if (bullet_selected !== null) {
-        bullet_selected.removeAttribute("fill");
-        bullet_selected = null;
-    }
-    rect_selected.setAttribute("x", "-1000");
     circle_mouseon.setAttribute("cx", "-1000");
 }
 
-// Progressive rendering function - loads data in batches to prevent UI freezing
-function loadPlot(data_json) {
-    const xshift = "shift" in data_json ? data_json.shift : 0;
-    const xfactor = "factor" in data_json ? data_json.factor : 1;
-    const trans = function(x) { return ((x - Math.round(x)) + Math.round(x) * xfactor + xshift); };
-    
-    // SIMPLIFIED: Since all bullets are currently black, use single batch
+function appendRenderedNodes(view, nodes) {
     let bulletsHTML = "";
-    let elementsProcessed = 0;
-    
-    // Process bullets in batch
-    for (; data_json.iPlotB < data_json["bullets"].length && elementsProcessed < CONFIG.plot_batchSize; data_json.iPlotB++) {
-        const bullet = data_json["bullets"][data_json.iPlotB];
-        const ele_bullet = '<circle data-i="' + data_json.iPlotB + '" class="p b ' + data_json.class + '" cx="' + trans(bullet.x) + '" cy="' + bullet.y + '" r="' + bullet.r + '"> </circle>';
-        
-        bulletsHTML += ele_bullet;
-        elementsProcessed++;
+    for (const node of nodes) {
+        const layout = node.layout;
+        bulletsHTML += '<circle data-key="' + view.key + '" data-i="' + node.index + '" class="p b cw" cx="' + layout.x + '" cy="' + layout.y + '" r="' + layout.r + '"> </circle>';
     }
-    
-    // SINGLE DOM INSERTION for all bullets in this batch (performance optimization)
     if (bulletsHTML) {
         g_bullets["black"].insertAdjacentHTML("beforeend", bulletsHTML);
     }
-    
-    // Process structure lines (product relationships)
-    let keys_prods = Object.keys(data_json["prods"]);
+}
+
+function appendRenderedEdges(view, edges) {
     let linesHTML = "";
-    let linesProcessed = 0;
-    
-    for (; data_json.iPlotSL < keys_prods.length && linesProcessed < CONFIG.plot_batchSize / 2; data_json.iPlotSL++) {
-        const lines = data_json["prods"][keys_prods[data_json.iPlotSL]];
-        for (const line of lines) {
-            if (line['l'] == 0) continue; // Skip zero lines
-            const bullet1 = data_json["bullets"][keys_prods[data_json.iPlotSL]];
-            for (const i of line["p"]) {
-                const bullet2 = data_json["bullets"][i];
-                const width = Math.min(bullet1['r'], bullet2['r']) / 4; // Line width proportional to bullet size
-                const ele_line = '<line class="p sl ' + data_json.class + '" x1="' + trans(bullet1.x) + '" y1="' + bullet1.y + '" x2="' + trans(bullet2.x) + '" y2="' + bullet2.y + '" stroke="black" stroke-width="' + width + '"> </line>';
-                linesHTML += ele_line;
-                linesProcessed++;
-                
-                if (linesProcessed >= CONFIG.plot_batchSize / 2) break; // Respect batch size limit
-            }
-            if (linesProcessed >= CONFIG.plot_batchSize / 2) break;
-        }
-        if (linesProcessed >= CONFIG.plot_batchSize / 2) break;
+    for (const edge of edges) {
+        const width = Math.min(edge.sourceLayout.r, edge.targetLayout.r) / 4;
+        linesHTML += '<line class="p sl cw" data-key="' + view.key + '" data-source="' + edge.source + '" data-target="' + edge.target + '" x1="' + edge.sourceLayout.x + '" y1="' + edge.sourceLayout.y + '" x2="' + edge.targetLayout.x + '" y2="' + edge.targetLayout.y + '" stroke="black" stroke-width="' + width + '"> </line>';
     }
-    
-    // BULK INSERTION for structure lines
     if (linesHTML) {
         g_strtlines.insertAdjacentHTML("beforeend", linesHTML);
     }
-    
-    // Continue progressive rendering if more data remains
-    if (data_json.iPlotB < data_json["bullets"].length || data_json.iPlotSL < keys_prods.length) {
-        requestAnimationFrame(function() { loadPlot(data_json); });
-    } else {
-        // Final setup after all data is loaded
-        if (navigator.userAgent.match("Windows") || navigator.userAgent.match("Macintosh")) {
-            const bullets = document.getElementsByClassName("b");
-            for (const b of bullets) {
-                b.onpointerenter = on_pointerenter_bullet;
-                b.onpointerleave = on_pointerleave_bullet;
-            }
+}
+
+function finalizeRenderedPlot(view, generation) {
+    if (!RENDER_GENERATIONS.isActive(generation)) return;
+    if (navigator.userAgent.match("Windows") || navigator.userAgent.match("Macintosh")) {
+        const bullets = document.getElementsByClassName("b");
+        for (const b of bullets) {
+            b.onpointerenter = on_pointerenter_bullet;
+            b.onpointerleave = on_pointerleave_bullet;
         }
-        updateVisibility();
-        updateAxisLabels();
     }
+    updateVisibility();
+    updateAxisLabels();
+}
+
+function getPlotController() {
+    if (PLOT_CONTROLLER === null) {
+        PLOT_CONTROLLER = RENDER_CORE.createProgressivePlotController({
+            generations: RENDER_GENERATIONS,
+            batchSize: CONFIG.plot_batchSize,
+            edgeBatchSize: Math.floor(CONFIG.plot_batchSize / 2),
+            requestAnimationFrame(callback) { requestAnimationFrame(callback); },
+            clear: clearPlot,
+            appendNodes: appendRenderedNodes,
+            appendEdges: appendRenderedEdges,
+            finalize: finalizeRenderedPlot,
+        });
+    }
+    return PLOT_CONTROLLER;
 }
 
 // Start the plotting process for a dataset
-function Plot(data_json) {
-    if (["ring", "module"].includes(data_json["type"])) {
-        data_json.iPlotB = 0; // Reset bullet plot index
-        data_json.iPlotSL = 0; // Reset structure line plot index
-        requestAnimationFrame(function() { loadPlot(data_json); }); // Start progressive rendering
-    }
+function Plot(view, generation) {
+    getPlotController().start(view, generation);
 }
 
 /* ===== PRIME SELECTION AND URL PARAMETER SYSTEM ===== */
@@ -889,23 +1221,12 @@ function getUrlParams() {
     };
 }
 
-// Update URL to reflect current prime selection
-function updateUrlParams(prime) {
-    const url = new URL(window.location);
-    url.searchParams.set('prime', prime);
-    // Remove scale, x, y parameters when switching primes to use default region
-    url.searchParams.delete('scale');
-    url.searchParams.delete('x');
-    url.searchParams.delete('y');
-    window.history.replaceState(null, '', url); // Update URL without page reload
-}
-
 // Switch to a different prime
 function switchPrime(prime) {
-    if (prime === CURRENT_PRIME) return;
-    
-    CURRENT_PRIME = prime;
-    updateUrlParams(prime);
+    if (prime === PRIME_REQUEST_STATE.requestedPrime()) return;
+
+    clearSelection();
+    RENDER_CORE.updateUrlParams(prime, window);
     loadPrimeData(prime);
 }
 
@@ -913,6 +1234,7 @@ function switchPrime(prime) {
 function createPrimeSelector() {
     const container = document.getElementById('div_menubar');
     container.innerHTML = '';
+    AVAILABLE_PRIMES = getAvailablePrimes();
     
     // Create prime selector
     const select = document.createElement('select');
@@ -978,15 +1300,32 @@ function setCameraPosition(scale, x, y) {
 }
 
 // Load and display data for a specific prime
-function loadPrimeData(prime) {
-    const globalVarName = 'DATA_JSON_p_' + prime + '_S0';
-    
-    if (window[globalVarName]) {
-        DATA_JSON = window[globalVarName];
+function ensureDataLoader() {
+    if (DATA_LOADER === null) {
+        DATA_LOADER = new DATA_LOADER_API.E2DataLoader(
+            RENDER_CORE.viewerManifestWithDataBase(getRuntimeManifest())
+        );
+    }
+    return DATA_LOADER;
+}
+
+async function loadPrimeData(prime) {
+    const requestId = PRIME_REQUEST_STATE.start(prime);
+
+    try {
+        const view = await ensureDataLoader().load(prime);
+        if (!PRIME_REQUEST_STATE.isActive(prime, requestId)) return;
+
+        const renderGeneration = RENDER_GENERATIONS.begin(view.key);
+
+        ACTIVE_VIEW = view;
+        DATA_JSON = view;
+        PRIME_REQUEST_STATE.commit(prime);
+        CURRENT_PRIME = prime;
         clearPlot();
         
         // Update bounds based on actual data
-        const bounds = calculateMaxBounds(DATA_JSON);
+        const bounds = calculateMaxBounds(view);
         CONFIG.x_max = bounds.x_max;
         CONFIG.y_max = bounds.y_max;
         CONFIG_DYNAMIC.camera_unit_screen_min = (window.innerWidth - CONFIG.margin_x) / (CONFIG.x_max + 1);
@@ -994,8 +1333,7 @@ function loadPrimeData(prime) {
         // Update grid to match data bounds
         addGridLines();
         
-        DATA_JSON.class = "cw"; // CSS class for the visualization
-        Plot(DATA_JSON);
+        Plot(view, renderGeneration);
         createPrimeSelector();
         
         // Set default region
@@ -1005,9 +1343,12 @@ function loadPrimeData(prime) {
         document.title = "Adams E₂ for S⁰ at prime " + prime;
         
         console.log("Loaded data for prime " + prime + ", bounds: x_max=" + CONFIG.x_max + ", y_max=" + CONFIG.y_max);
-    } else {
-        console.error("Data for prime " + prime + " not found. Global variable " + globalVarName + " is not defined.");
-        alert("Data for prime " + prime + " is not available. Please generate the data files first.");
+    } catch (error) {
+        if (!PRIME_REQUEST_STATE.isActive(prime, requestId)) return;
+        PRIME_REQUEST_STATE.fail(prime);
+        RENDER_CORE.syncPrimeControls(CURRENT_PRIME, window, document);
+        console.error("Data for prime " + prime + " could not be loaded.", error);
+        alert("Data for prime " + prime + " is not available. Please check the compact data files.");
     }
 }
 
@@ -1044,14 +1385,12 @@ function initializeSystem() {
     
     const params = getUrlParams();
     CURRENT_PRIME = params.prime;
+    PRIME_REQUEST_STATE = RENDER_CORE.createPrimeRequestState(CURRENT_PRIME);
     
     // Load initial prime data
-    loadPrimeData(CURRENT_PRIME);
-    
-    // Process URL parameters after data is loaded
-    setTimeout(function() {
+    loadPrimeData(CURRENT_PRIME).then(function() {
         processUrlParams(params);
-    }, 100);
+    });
     
     // Set up window resize handler
     window.addEventListener("resize", windowResize);
@@ -1062,4 +1401,6 @@ function initializeSystem() {
 }
 
 // Initialize when the page loads
-window.addEventListener("load", initializeSystem);
+if (typeof window !== "undefined" && window.addEventListener) {
+    window.addEventListener("load", initializeSystem);
+}

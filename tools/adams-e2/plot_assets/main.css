@@ -45,6 +45,43 @@ svg {
     left: 0;
 }
 
+#point_label {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 20;
+    box-sizing: border-box;
+    padding: 5px 8px 6px;
+    border: 1px solid rgba(17, 17, 17, 0.30);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    color: #111;
+    font-size: 16px;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#point_label[hidden] {
+    display: none;
+}
+
+#point_label .katex {
+    font-size: 1.08em;
+}
+
+.point-label-leader {
+    stroke: #555;
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    opacity: 0.85;
+    pointer-events: none;
+    vector-effect: non-scaling-stroke;
+}
+
 /* ===== MENUBAR STYLES ===== */
 
 /* 
@@ -61,6 +98,7 @@ svg {
     opacity: 0.9;       /* Slightly transparent to see through to chart */
     border-radius: 4px;
     border: 1px solid #ccc;
+    z-index: 100;
 }
 
 /* Style the prime selection dropdown */
@@ -110,6 +148,7 @@ svg {
     padding: 0px;
     border: 1px solid #c6c6c6; /* Light gray border */
     border-radius: 4px;
+    z-index: 110;
 }
 
 /* Style individual context menu items */
