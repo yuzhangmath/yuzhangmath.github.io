@@ -32,6 +32,17 @@
     });
   }
 
+  function defaultScriptPrefetcher(url) {
+    if (!root.document || typeof root.document.createElement !== "function") {
+      return;
+    }
+    const link = root.document.createElement("link");
+    link.rel = "prefetch";
+    link.as = "script";
+    link.href = url;
+    root.document.head.appendChild(link);
+  }
+
   function resolveDataUrl(dataFile) {
     if (root.document && root.document.baseURI) {
       return new URL(dataFile, root.document.baseURI).href;
@@ -83,11 +94,26 @@
   }
 
   class E2DataLoader {
-    constructor(manifest, injectScript) {
+    constructor(manifest, injectScript, prefetchScript) {
       this.manifest = manifest || root[MANIFEST_NAME];
       validateManifest(this.manifest);
       this.injectScript = injectScript || defaultScriptInjector;
+      this.prefetchScript = prefetchScript || defaultScriptPrefetcher;
       this.promises = new Map();
+      this.prefetched = new Set();
+    }
+
+    prefetch(prime) {
+      const entry = findEntryByPrime(this.manifest, prime);
+      if (this.prefetched.has(entry.key) || this.promises.has(entry.key)) return;
+      this.prefetchScript(resolveDataUrl(entry.dataFile));
+      this.prefetched.add(entry.key);
+    }
+
+    prefetchAllExcept(activePrime) {
+      for (const entry of Object.values(this.manifest.datasets)) {
+        if (entry.prime !== activePrime) this.prefetch(entry.prime);
+      }
     }
 
     load(prime) {
@@ -149,6 +175,7 @@
   const api = {
     E2DataLoader,
     defaultScriptInjector,
+    defaultScriptPrefetcher,
   };
 
   if (typeof module === "object" && module.exports) {

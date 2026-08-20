@@ -416,6 +416,7 @@
     const refreshMargin = options.refreshMargin === undefined ?
       0.25 : options.refreshMargin;
     const maximumRetainedFactor = options.maximumRetainedFactor || 6;
+    const indexes = new WeakMap();
     let active = null;
 
     function needsRefresh(renderBounds, viewportBounds) {
@@ -464,10 +465,13 @@
 
     function start(view, generation, viewportBounds) {
       const activeGeneration = generation || generations.begin(view.key);
+      if (!indexes.has(view)) {
+        indexes.set(view, createHorizontalSpatialIndex(view, bucketWidth));
+      }
       active = {
         view,
         generation: activeGeneration,
-        index: createHorizontalSpatialIndex(view, bucketWidth),
+        index: indexes.get(view),
         renderBounds: null,
         pendingViewportBounds: null,
         frameQueued: false,

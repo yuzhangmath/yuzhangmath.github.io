@@ -20,6 +20,7 @@ var ACTIVE_VIEW = null;
 var DATA_LOADER = null;
 var PLOT_CONTROLLER = null;
 var SELECTION_LIFECYCLE = null;
+var PRIME_PREFETCH_SCHEDULED = false;
 
 var ROOT = typeof globalThis !== "undefined" ? globalThis : window;
 var RENDER_CORE = ROOT.AdamsE2RenderCore;
@@ -1321,6 +1322,15 @@ function ensureDataLoader() {
     return DATA_LOADER;
 }
 
+function scheduleInactivePrimePrefetch(activePrime) {
+    if (PRIME_PREFETCH_SCHEDULED) return;
+    if (navigator.connection && navigator.connection.saveData) return;
+    PRIME_PREFETCH_SCHEDULED = true;
+    setTimeout(function() {
+        ensureDataLoader().prefetchAllExcept(activePrime);
+    }, 0);
+}
+
 async function loadPrimeData(prime, initialUrlParams) {
     const requestId = PRIME_REQUEST_STATE.start(prime);
 
@@ -1355,6 +1365,7 @@ async function loadPrimeData(prime, initialUrlParams) {
         
         // Update page title like original
         document.title = "Adams E₂ for S⁰ at prime " + prime;
+        scheduleInactivePrimePrefetch(prime);
         
         console.log("Loaded data for prime " + prime + ", bounds: x_max=" + CONFIG.x_max + ", y_max=" + CONFIG.y_max);
     } catch (error) {
