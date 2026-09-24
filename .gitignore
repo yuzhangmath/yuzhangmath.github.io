@@ -4,5 +4,8 @@
 # Editor settings
 .vscode/
 
+# LaTeX source-to-PDF synchronization files
+*.synctex.gz
+
 # Private CV material
 cv/zhicheng/
