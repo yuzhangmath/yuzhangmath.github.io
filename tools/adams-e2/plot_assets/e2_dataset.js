@@ -2,11 +2,11 @@
   "use strict";
 
   const SCHEMA = "myadamsp2.adams-e2-support";
-  const VERSION = 2;
+  const VERSION = 3;
   const GRAPH_SEMANTICS = "unlabeled-x0-x1-support";
   const MONOMIAL_LABEL = /^(?:1|(?:x_(?:[0-9]|\{[1-9][0-9]+\})(?:\^(?:[2-9]|\{[1-9][0-9]+\}))?)+)$/;
   const NODE_COLUMNS = [
-    "basisIds",
+    "basisIdDeltas",
     "stems",
     "filtrations",
     "monomialLabels",
@@ -25,7 +25,7 @@
     "generatedAt",
     "generatedAtTimezone",
     ...NODE_COLUMNS,
-    "edgeOffsets",
+    "edgeCounts",
     "edgeTargets",
   ]);
 
@@ -47,6 +47,12 @@
     }
   }
 
+  function requireSafeInteger(value, field) {
+    if (!Number.isSafeInteger(value)) {
+      fail(field + " must be a safe integer");
+    }
+  }
+
   function requireFiniteNumber(value, field) {
     if (typeof value !== "number" || !Number.isFinite(value)) {
       fail(field + " must be a finite number");
@@ -59,21 +65,24 @@
       columns[field] = requireArray(payload, field);
     }
 
-    const count = columns.basisIds.length;
+    const count = columns.basisIdDeltas.length;
     for (const field of NODE_COLUMNS) {
       if (columns[field].length !== count) {
-        fail(field + " length must equal basisIds length");
+        fail(field + " length must equal basisIdDeltas length");
       }
     }
 
+    const basisIds = [];
+    let basisId = 0;
     for (let index = 0; index < count; index += 1) {
-      requireInteger(columns.basisIds[index], "basisIds[" + index + "]");
-      if (
-        columns.basisIds[index] < 0 ||
-        (index > 0 && columns.basisIds[index] <= columns.basisIds[index - 1])
-      ) {
-        fail("basis IDs must be strictly increasing nonnegative integers");
+      const delta = columns.basisIdDeltas[index];
+      requireSafeInteger(delta, "basisIdDeltas[" + index + "]");
+      if (delta < 0 || (index > 0 && delta === 0)) {
+        fail("basisIdDeltas must start nonnegative and have positive later deltas");
       }
+      basisId += delta;
+      requireSafeInteger(basisId, "cumulative basis ID");
+      basisIds.push(basisId);
       requireInteger(columns.stems[index], "stems[" + index + "]");
       requireInteger(columns.filtrations[index], "filtrations[" + index + "]");
       requireFiniteNumber(columns.layoutX[index], "layoutX[" + index + "]");
@@ -86,27 +95,29 @@
         fail("monomialLabels[" + index + "] must be a canonical display label");
       }
     }
+    columns.basisIds = basisIds;
     return {columns, count};
   }
 
   function validateEdges(payload, count) {
-    const edgeOffsets = requireArray(payload, "edgeOffsets");
+    const edgeCounts = requireArray(payload, "edgeCounts");
     const edgeTargets = requireArray(payload, "edgeTargets");
-    if (edgeOffsets.length !== count + 1) {
-      fail("edgeOffsets length must be node count plus one");
-    }
-    if (edgeOffsets[0] !== 0) {
-      fail("edgeOffsets must start at zero");
+    if (edgeCounts.length !== count) {
+      fail("edgeCounts length must equal node count");
     }
 
-    for (let index = 0; index < edgeOffsets.length; index += 1) {
-      requireInteger(edgeOffsets[index], "edgeOffsets[" + index + "]");
-      if (index > 0 && edgeOffsets[index] < edgeOffsets[index - 1]) {
-        fail("edgeOffsets must be monotone nondecreasing");
+    const edgeOffsets = [0];
+    for (let index = 0; index < count; index += 1) {
+      requireSafeInteger(edgeCounts[index], "edgeCounts[" + index + "]");
+      if (edgeCounts[index] < 0) {
+        fail("edgeCounts must be nonnegative");
       }
+      const offset = edgeOffsets[index] + edgeCounts[index];
+      requireSafeInteger(offset, "cumulative edge count");
+      edgeOffsets.push(offset);
     }
     if (edgeOffsets[count] !== edgeTargets.length) {
-      fail("edgeOffsets final value must equal edgeTargets length");
+      fail("edgeCounts total must equal edgeTargets length");
     }
 
     for (let source = 0; source < count; source += 1) {
@@ -201,18 +212,18 @@
     }
   }
 
-  function decodeCompactV2(payload) {
+  function decodeCompactV3(payload) {
     if (payload === null || typeof payload !== "object" || Array.isArray(payload)) {
       fail("payload must be an object");
     }
     for (const field of PAYLOAD_FIELDS) {
       if (!Object.prototype.hasOwnProperty.call(payload, field)) {
-        fail("missing compact-v2 field " + field);
+        fail("missing compact-v3 field " + field);
       }
     }
     for (const field of Object.keys(payload)) {
       if (!PAYLOAD_FIELDS.has(field)) {
-        fail("unsupported compact-v2 field " + field);
+        fail("unsupported compact-v3 field " + field);
       }
     }
     if (payload.schema !== SCHEMA) {
@@ -229,7 +240,7 @@
       payload.structure !== "ring" ||
       payload.generatedAtTimezone !== null
     ) {
-      fail("unsupported compact-v2 fixed metadata");
+      fail("unsupported compact-v3 fixed metadata");
     }
     if (typeof payload.generatedAt !== "string") {
       fail("generatedAt must be a string");
@@ -256,7 +267,7 @@
 
   const api = {
     DatasetView,
-    decodeCompactV2,
+    decodeCompactV3,
   };
 
   if (typeof module === "object" && module.exports) {

@@ -1,8 +1,8 @@
 (function (root) {
   "use strict";
 
-  const REGISTRY_NAME = "__MYADAMSP2_E2_V2__";
-  const MANIFEST_NAME = "__MYADAMSP2_E2_MANIFEST_V2__";
+  const REGISTRY_NAME = "__MYADAMSP2_E2_V3__";
+  const MANIFEST_NAME = "__MYADAMSP2_E2_MANIFEST_V3__";
   const MANIFEST_SCHEMA = "myadamsp2.adams-e2-manifest";
   const MANIFEST_FIELDS = new Set([
     "schema",
@@ -68,7 +68,7 @@
     if (manifest.schema !== MANIFEST_SCHEMA) {
       throw new Error("unsupported compact E2 manifest schema");
     }
-    if (manifest.version !== 2) {
+    if (manifest.version !== 3) {
       throw new Error("unsupported compact E2 manifest version");
     }
     if (manifest.graphSemantics !== GRAPH_SEMANTICS) {
@@ -91,6 +91,24 @@
       }
     }
     throw new Error("No compact E2 dataset is available for prime " + prime);
+  }
+
+  async function decompressPayload(encoded) {
+    if (typeof root.DecompressionStream !== "function") {
+      throw new Error("Your browser cannot decompress the chart data. Please update your browser.");
+    }
+    if (typeof encoded !== "string") {
+      throw new Error("compact E2 dataset must be a base64-encoded gzip string");
+    }
+    const binary = root.atob(encoded);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+    const stream = new root.Blob([bytes]).stream().pipeThrough(
+      new root.DecompressionStream("gzip"),
+    );
+    return JSON.parse(await new root.Response(stream).text());
   }
 
   class E2DataLoader {
@@ -147,9 +165,10 @@
         throw new Error("compact E2 dataset " + entry.key + " was not registered");
       }
 
-      const payload = updatedRegistry[entry.key];
+      const encoded = updatedRegistry[entry.key];
       delete updatedRegistry[entry.key];
-      const view = datasetApi.decodeCompactV2(payload);
+      const payload = await decompressPayload(encoded);
+      const view = datasetApi.decodeCompactV3(payload);
       if (view.key !== entry.key) {
         throw new Error("compact E2 dataset key mismatch for " + entry.key);
       }

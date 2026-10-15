@@ -11,16 +11,15 @@
 
 /* ===== GLOBAL STATE AND CONFIGURATION ===== */
 
-// Application state - tracks current mode (currently only "start" mode)
-var STATE = "start";
-
 // Global storage for the currently loaded compact dataset view
-var DATA_JSON = {};
 var ACTIVE_VIEW = null;
 var DATA_LOADER = null;
 var PLOT_CONTROLLER = null;
 var SELECTION_LIFECYCLE = null;
 var PRIME_PREFETCH_SCHEDULED = false;
+var CAMERA_FRAME = null;
+const RENDERED_NODES = new Map();
+const RENDERED_EDGES = new Map();
 
 var ROOT = typeof globalThis !== "undefined" ? globalThis : window;
 var RENDER_CORE = ROOT.AdamsE2RenderCore;
@@ -28,7 +27,7 @@ var DATA_LOADER_API = ROOT.AdamsE2DataLoader;
 var RENDER_GENERATIONS = new RENDER_CORE.RenderGenerations();
 
 function getRuntimeManifest() {
-    return ROOT.__MYADAMSP2_E2_MANIFEST_V2__ || null;
+    return ROOT.__MYADAMSP2_E2_MANIFEST_V3__ || null;
 }
 
 function getDatasetEntries() {
@@ -100,7 +99,6 @@ var CONFIG = {
 };
 
 var CONFIG_DYNAMIC = {
-    status: "start",
     camera_unit_screen_init: (window.innerWidth - CONFIG.margin_x) / (CONFIG.x_max_init + 1), // Initial zoom level
     camera_unit_screen_min: (window.innerWidth - CONFIG.margin_x) / (CONFIG.x_max + 1),       // Minimum zoom (fully zoomed out)
     camera_unit_screen_max: Math.min(window.innerWidth, window.innerHeight) - 30,           // Maximum zoom (fully zoomed in)
@@ -176,9 +174,7 @@ const camera = {
         if (y_min > y_max) y_min = y_max;
         
         this.o_svg = new Vector(clip(origin_sp1.x, x_min, x_max), clip(origin_sp1.y, y_min, y_max));
-        camera.setTransform();
-        updateAxisLabels();
-        schedulePlotForActiveWindow();
+        scheduleCameraUpdate();
         schedulePointLabelZoomReflow();
     },
     
@@ -194,9 +190,7 @@ const camera = {
         if (y_min > y_max) y_min = y_max;
         
         this.o_svg = new Vector(clip(origin_sp1.x, x_min, x_max), clip(origin_sp1.y, y_min, y_max));
-        camera.setTransform();
-        updateAxisLabels();
-        schedulePlotForActiveWindow();
+        scheduleCameraUpdate();
     },
     
     // Convert world coordinates to SVG pixel coordinates
@@ -221,12 +215,24 @@ const camera = {
     }
 };
 
+// Input updates the camera immediately; paint only the latest state each frame.
+function scheduleCameraUpdate() {
+    if (CAMERA_FRAME !== null) return;
+    CAMERA_FRAME = requestAnimationFrame(function() {
+        CAMERA_FRAME = null;
+        camera.setTransform();
+        updateAxisLabels();
+        schedulePlotForActiveWindow();
+    });
+}
+
 /* ===== GLOBAL ELEMENT REFERENCES ===== */
 
 // SVG and group elements for the visualization
 var svg_ss, g_svg, g_plot, g_bullets, g_strtlines, g_xaxis, g_yaxis;
 var circle_mouseon, rect_selected, g_prod, div_menu_style;
 var point_label, point_label_math, point_label_leader, div_menubar;
+var load_status;
 var bullet_selected = null;
 var POINT_LABEL_STATE = {
     generation: 0,
@@ -245,12 +251,7 @@ function initializeElements() {
     g_svg = document.getElementById("g_svg");
     g_plot = document.getElementById("g_plot");
     
-    // Bullet containers for different colors (currently only black used)
-    g_bullets = {
-        "black": document.getElementById("g_bullets_black"),
-        "blue": document.getElementById("g_bullets_blue"),
-        "grey": document.getElementById("g_bullets_grey")
-    };
+    g_bullets = document.getElementById("g_bullets_black");
     
     g_strtlines = document.getElementById("g_strtlines");
     g_xaxis = document.getElementById("g_xaxis");
@@ -262,6 +263,7 @@ function initializeElements() {
     point_label_math = document.getElementById("point_label_math");
     point_label_leader = document.getElementById("point_label_leader");
     div_menubar = document.getElementById("div_menubar");
+    load_status = document.getElementById("load_status");
     div_menu_style = document.getElementById("div_menu").style;
     
     // Set up SVG dimensions and coordinate system
@@ -278,8 +280,7 @@ function windowResize() {
     // Update dynamic config based on new window size
     CONFIG_DYNAMIC.camera_unit_screen_min = (window.innerWidth - CONFIG.margin_x) / (CONFIG.x_max + 1);
     CONFIG_DYNAMIC.camera_unit_screen_max = Math.min(window.innerWidth, window.innerHeight) - 30;
-    updateAxisLabels();
-    schedulePlotForActiveWindow();
+    scheduleCameraUpdate();
     schedulePointLabelPosition(true);
 }
 
@@ -293,24 +294,26 @@ function updateAxisLabels() {
     var stepLabel = Math.ceil(CONFIG.axis_text_sep_screen / camera.unit_svg);
     let i_min = Math.ceil(camera.svg2world(new Vector(30, 0)).x / stepLabel) * stepLabel;
     let i_max = Math.floor(camera.svg2world(new Vector(window.innerWidth, 0)).x);
-    g_xaxis.innerHTML = "";
+    let labels = "";
     
     // Create x-axis labels (t-s coordinate)
     for (let i = i_min; i <= i_max; i += stepLabel) {
         let xText = camera.world2svg(new Vector(i, 0)).x;
         let label = '<text x="' + xText + '" y="-10">' + getAxisNumber(i) + '</text>';
-        g_xaxis.insertAdjacentHTML("beforeend", label);
+        labels += label;
     }
+    g_xaxis.innerHTML = labels;
     
     // Create y-axis labels (s coordinate)
     i_min = Math.ceil(camera.svg2world(new Vector(0, 30)).y / stepLabel) * stepLabel;
     i_max = Math.floor(camera.svg2world(new Vector(0, window.innerHeight)).y);
-    g_yaxis.innerHTML = "";
+    labels = "";
     for (let i = i_min; i <= i_max; i += stepLabel) {
         let yText = camera.world2svg(new Vector(0, i)).y;
         let label = '<text x="36" y="' + (-yText) + '" dy="0.25em">' + i + '</text>';
-        g_yaxis.insertAdjacentHTML("beforeend", label);
+        labels += label;
     }
+    g_yaxis.innerHTML = labels;
 }
 
 // Create the coordinate grid background with consistent appearance
@@ -359,7 +362,7 @@ function handleGlobalPointerCancel(event) {
 
 // Handle pointer down events (mouse down or touch start)
 function on_pointerdown(event) {
-    if (STATE === "start" && event.button === 0) { // Only handle left mouse button
+    if (event.button === 0) { // Only handle left mouse button
         div_menu_style.visibility = "hidden"; // Hide context menu
         pointerCache.push(event);
         POINTER_CLICK_TRACKER.down(event.pointerId, event.clientX, event.clientY);
@@ -385,33 +388,31 @@ function on_pointerdown(event) {
 
 // Handle pointer move events (mouse move or touch move)
 function on_pointermove(event) {
-    if (STATE === "start") {
-        POINTER_CLICK_TRACKER.move(event.pointerId, event.clientX, event.clientY);
-        let index = 0;
-        // Update the moving pointer in cache
-        for (; index < pointerCache.length; index++) {
-            if (event.pointerId === pointerCache[index].pointerId) {
-                pointerCache[index] = event;
-                break;
-            }
+    POINTER_CLICK_TRACKER.move(event.pointerId, event.clientX, event.clientY);
+    let index = 0;
+    // Update the moving pointer in cache
+    for (; index < pointerCache.length; index++) {
+        if (event.pointerId === pointerCache[index].pointerId) {
+            pointerCache[index] = event;
+            break;
         }
+    }
 
-        // Single pointer movement - pan the camera
-        if (pointerCache.length === 1 && index < pointerCache.length) {
-            let curPt = new Vector(event.clientX, event.clientY);
-            let deltaScreen = curPt.sub(prevPt);
-            camera.translate(new Vector(deltaScreen.x, -deltaScreen.y)); // Note: y is inverted
-            prevPt = curPt;
-        }
+    // Single pointer movement - pan the camera
+    if (pointerCache.length === 1 && index < pointerCache.length) {
+        let curPt = new Vector(event.clientX, event.clientY);
+        let deltaScreen = curPt.sub(prevPt);
+        camera.translate(new Vector(deltaScreen.x, -deltaScreen.y)); // Note: y is inverted
+        prevPt = curPt;
+    }
 
-        // Two pointer movement - pinch to zoom
-        if (pointerCache.length === 2 && index < pointerCache.length) {
-            let p1Svg = camera.flip(new Vector(pointerCache[0].clientX, pointerCache[0].clientY));
-            let p2Svg = camera.flip(new Vector(pointerCache[1].clientX, pointerCache[1].clientY));
-            let curDist = p1Svg.dist(p2Svg);
-            camera.zoom(index === 0 ? p2Svg : p1Svg, curDist / prevPtsDist);
-            prevPtsDist = curDist;
-        }
+    // Two pointer movement - pinch to zoom
+    if (pointerCache.length === 2 && index < pointerCache.length) {
+        let p1Svg = camera.flip(new Vector(pointerCache[0].clientX, pointerCache[0].clientY));
+        let p2Svg = camera.flip(new Vector(pointerCache[1].clientX, pointerCache[1].clientY));
+        let curDist = p1Svg.dist(p2Svg);
+        camera.zoom(index === 0 ? p2Svg : p1Svg, curDist / prevPtsDist);
+        prevPtsDist = curDist;
     }
 }
 
@@ -464,7 +465,7 @@ function finishPointer(event, allowActivation) {
 
 // Handle pointer up events (mouse up or touch end)
 function on_pointerup(event) {
-    if (STATE === "start" && event.button === 0) {
+    if (event.button === 0) {
         // Release pointer capture
         event.target.releasePointerCapture(event.pointerId);
         finishPointer(event, true);
@@ -538,7 +539,7 @@ function pointLabelObstacles(selection, anchor, labelSize) {
     const screenLayouts = new Map();
     const pointObstacles = [];
 
-    for (const bullet of g_bullets["black"].children) {
+    for (const bullet of g_bullets.children) {
         const index = Number(bullet.dataset.i);
         const layout = screenLayout(index);
         screenLayouts.set(index, layout);
@@ -733,9 +734,33 @@ function hidePointLabel() {
     }
 }
 
+function renderMonomialLabel(label, container) {
+    container.replaceChildren();
+    if (label === "1") {
+        container.textContent = label;
+        return;
+    }
+
+    // E2Dataset has already validated the canonical monomial grammar.
+    for (const [, index, exponent] of label.matchAll(/x_(\d|\{\d+\})(?:\^(\d|\{\d+\}))?/g)) {
+        const factor = document.createElement("span");
+        factor.className = "monomial-factor";
+        const variable = document.createElement("i");
+        variable.textContent = "x";
+        const scripts = document.createElement("span");
+        scripts.className = "monomial-scripts";
+        const superscript = document.createElement("sup");
+        superscript.textContent = (exponent || "").replace(/[{}]/g, "");
+        const subscript = document.createElement("sub");
+        subscript.textContent = index.replace(/[{}]/g, "");
+        scripts.append(superscript, subscript);
+        factor.append(variable, scripts);
+        container.appendChild(factor);
+    }
+}
+
 function showPointLabel(selection) {
     POINT_LABEL_STATE.generation += 1;
-    const generation = POINT_LABEL_STATE.generation;
     if (POINT_LABEL_STATE.frame !== null) {
         cancelAnimationFrame(POINT_LABEL_STATE.frame);
         POINT_LABEL_STATE.frame = null;
@@ -747,41 +772,15 @@ function showPointLabel(selection) {
     POINT_LABEL_STATE.placement = null;
     POINT_LABEL_STATE.rechooseRequested = false;
 
-    const tex = selection.label;
-    point_label.dataset.latex = tex;
+    point_label.dataset.latex = selection.label;
     point_label.dataset.key = selection.datasetKey;
     point_label.dataset.index = String(selection.index);
-    point_label_math.replaceChildren();
-    try {
-        if (!ROOT.katex || typeof ROOT.katex.render !== "function") {
-            throw new Error("KaTeX runtime is unavailable");
-        }
-        ROOT.katex.render(tex, point_label_math, {
-            displayMode: false,
-            throwOnError: true,
-            trust: false,
-            strict: "error",
-        });
-    } catch (error) {
-        point_label_math.textContent = tex;
-        console.error("Could not typeset selected monomial label.", error);
-    }
+    renderMonomialLabel(selection.label, point_label_math);
 
     point_label.hidden = false;
     point_label.style.visibility = "hidden";
     POINT_LABEL_STATE.visible = true;
     schedulePointLabelPosition(true);
-
-    if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(function() {
-            if (
-                generation === POINT_LABEL_STATE.generation &&
-                POINT_LABEL_STATE.visible
-            ) {
-                schedulePointLabelPosition(true);
-            }
-        });
-    }
 }
 
 function getSelectionLifecycle() {
@@ -1105,17 +1104,16 @@ function showHelp() {
     showCustomModal("Help", helpText);
 }
 
-// Update visibility of elements (currently minimal implementation)
-function updateVisibility() {
-    for (const ele of document.getElementsByClassName("p")) {
-        ele.removeAttribute("style");
-    }
-}
-
 /* ===== EVENT HANDLER INITIALIZATION ===== */
 
 // Set up all event listeners
 function initHandlers() {
+    if (navigator.userAgent.match("Windows") || navigator.userAgent.match("Macintosh")) {
+        g_bullets.addEventListener("pointerover", function(event) {
+            if (event.target.classList.contains("b")) on_pointerenter_bullet(event);
+        });
+        g_bullets.addEventListener("pointerout", on_pointerleave_bullet);
+    }
     svg_ss.addEventListener("wheel", on_wheel);
     svg_ss.addEventListener("pointerdown", on_pointerdown);
     svg_ss.addEventListener("pointermove", on_pointermove);
@@ -1141,10 +1139,10 @@ function initHandlers() {
 // Clear all plotted elements from the visualization
 function clearPlot() {
     clearSelection();
-    g_bullets["black"].innerHTML = "";
-    g_bullets["blue"].innerHTML = "";
-    g_bullets["grey"].innerHTML = "";
+    g_bullets.innerHTML = "";
     g_strtlines.innerHTML = "";
+    RENDERED_NODES.clear();
+    RENDERED_EDGES.clear();
     circle_mouseon.setAttribute("cx", "-1000");
 }
 
@@ -1152,10 +1150,15 @@ function appendRenderedNodes(view, nodes) {
     let bulletsHTML = "";
     for (const node of nodes) {
         const layout = node.layout;
-        bulletsHTML += '<circle data-key="' + view.key + '" data-i="' + node.index + '" class="p b cw" cx="' + layout.x + '" cy="' + layout.y + '" r="' + layout.r + '"> </circle>';
+        bulletsHTML += '<circle data-key="' + view.key + '" data-i="' + node.index + '" class="b" cx="' + layout.x + '" cy="' + layout.y + '" r="' + layout.r + '"> </circle>';
     }
     if (bulletsHTML) {
-        g_bullets["black"].insertAdjacentHTML("beforeend", bulletsHTML);
+        g_bullets.insertAdjacentHTML("beforeend", bulletsHTML);
+        let element = g_bullets.lastElementChild;
+        for (let index = nodes.length - 1; index >= 0; index--) {
+            RENDERED_NODES.set(nodes[index].index, element);
+            element = element.previousElementSibling;
+        }
     }
 }
 
@@ -1163,24 +1166,40 @@ function appendRenderedEdges(view, edges) {
     let linesHTML = "";
     for (const edge of edges) {
         const width = Math.min(edge.sourceLayout.r, edge.targetLayout.r) / 4;
-        linesHTML += '<line class="p sl cw" data-key="' + view.key + '" data-source="' + edge.source + '" data-target="' + edge.target + '" x1="' + edge.sourceLayout.x + '" y1="' + edge.sourceLayout.y + '" x2="' + edge.targetLayout.x + '" y2="' + edge.targetLayout.y + '" stroke="black" stroke-width="' + width + '"> </line>';
+        linesHTML += '<line class="sl" data-key="' + view.key + '" data-source="' + edge.source + '" data-target="' + edge.target + '" x1="' + edge.sourceLayout.x + '" y1="' + edge.sourceLayout.y + '" x2="' + edge.targetLayout.x + '" y2="' + edge.targetLayout.y + '" stroke="black" stroke-width="' + width + '"> </line>';
     }
     if (linesHTML) {
         g_strtlines.insertAdjacentHTML("beforeend", linesHTML);
+        let element = g_strtlines.lastElementChild;
+        for (let index = edges.length - 1; index >= 0; index--) {
+            const edge = edges[index];
+            RENDERED_EDGES.set(edge.source + ":" + edge.target, element);
+            element = element.previousElementSibling;
+        }
+    }
+}
+
+function removeRenderedNodes(view, nodes) {
+    const selection = getSelectionLifecycle().current();
+    for (const node of nodes) {
+        if (selection !== null && selection.index === node.index) clearSelection();
+        RENDERED_NODES.get(node.index).remove();
+        RENDERED_NODES.delete(node.index);
+    }
+    circle_mouseon.setAttribute("cx", "-1000");
+}
+
+function removeRenderedEdges(view, edges) {
+    for (const edge of edges) {
+        const key = edge.source + ":" + edge.target;
+        RENDERED_EDGES.get(key).remove();
+        RENDERED_EDGES.delete(key);
     }
 }
 
 function finalizeRenderedPlot(view, generation) {
     if (!RENDER_GENERATIONS.isActive(generation)) return;
-    if (navigator.userAgent.match("Windows") || navigator.userAgent.match("Macintosh")) {
-        const bullets = document.getElementsByClassName("b");
-        for (const b of bullets) {
-            b.onpointerenter = on_pointerenter_bullet;
-            b.onpointerleave = on_pointerleave_bullet;
-        }
-    }
-    updateVisibility();
-    updateAxisLabels();
+    schedulePointLabelPosition(true);
 }
 
 function getPlotController() {
@@ -1189,6 +1208,8 @@ function getPlotController() {
             generations: RENDER_GENERATIONS,
             requestAnimationFrame(callback) { requestAnimationFrame(callback); },
             clear: clearPlot,
+            removeNodes: removeRenderedNodes,
+            removeEdges: removeRenderedEdges,
             appendNodes: appendRenderedNodes,
             appendEdges: appendRenderedEdges,
             finalize: finalizeRenderedPlot,
@@ -1325,6 +1346,8 @@ function ensureDataLoader() {
 
 function scheduleInactivePrimePrefetch(activePrime) {
     if (PRIME_PREFETCH_SCHEDULED) return;
+    // Prefetching inactive datasets makes prime switches fast during the talk,
+    // but saveData means the user explicitly asked to reduce optional downloads.
     if (navigator.connection && navigator.connection.saveData) return;
     PRIME_PREFETCH_SCHEDULED = true;
     setTimeout(function() {
@@ -1334,18 +1357,26 @@ function scheduleInactivePrimePrefetch(activePrime) {
 
 async function loadPrimeData(prime, initialUrlParams) {
     const requestId = PRIME_REQUEST_STATE.start(prime);
+    load_status.textContent = "Loading prime " + prime + "…";
+    load_status.hidden = false;
 
     try {
         const view = await ensureDataLoader().load(prime);
         if (!PRIME_REQUEST_STATE.isActive(prime, requestId)) return;
 
+        load_status.textContent = "Drawing prime " + prime + "…";
+        // Leave a paint opportunity before the synchronous SVG update, including
+        // when the loader returns an already cached dataset.
+        await new Promise(resolve => {
+            requestAnimationFrame(() => requestAnimationFrame(resolve));
+        });
+        if (!PRIME_REQUEST_STATE.isActive(prime, requestId)) return;
+
         const renderGeneration = RENDER_GENERATIONS.begin(view.key);
 
         ACTIVE_VIEW = view;
-        DATA_JSON = view;
         PRIME_REQUEST_STATE.commit(prime);
         CURRENT_PRIME = prime;
-        clearPlot();
         
         // Update bounds based on actual data
         const bounds = calculateMaxBounds(view);
@@ -1362,7 +1393,8 @@ async function loadPrimeData(prime, initialUrlParams) {
         else setCameraToDefaultRegion(prime);
 
         Plot(view, renderGeneration, getActiveWindowBounds());
-        createPrimeSelector();
+        document.getElementById("select_prime").value = String(prime);
+        load_status.hidden = true;
         
         // Update page title like original
         document.title = "Adams E₂ for S⁰ at prime " + prime;
@@ -1374,7 +1406,8 @@ async function loadPrimeData(prime, initialUrlParams) {
         PRIME_REQUEST_STATE.fail(prime);
         RENDER_CORE.syncPrimeControls(CURRENT_PRIME, window, document);
         console.error("Data for prime " + prime + " could not be loaded.", error);
-        alert("Data for prime " + prime + " is not available. Please check the compact data files.");
+        load_status.textContent = "Could not load prime " + prime + ". " + error.message;
+        load_status.hidden = false;
     }
 }
 
@@ -1412,6 +1445,7 @@ function initializeSystem() {
     const params = getUrlParams();
     CURRENT_PRIME = params.prime;
     PRIME_REQUEST_STATE = RENDER_CORE.createPrimeRequestState(CURRENT_PRIME);
+    createPrimeSelector();
     
     // Load initial prime data and prioritize the URL-selected viewport.
     loadPrimeData(CURRENT_PRIME, params);

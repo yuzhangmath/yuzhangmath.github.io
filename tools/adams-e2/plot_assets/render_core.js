@@ -438,27 +438,46 @@
       if (active !== state || !generations.isActive(state.generation)) return;
       const renderBounds = expandBounds(viewportBounds, bufferFactor);
       const nodes = state.index.query(renderBounds);
-      const included = new Set(nodes.map(node => node.index));
-      const edges = [];
+      const nextNodes = new Map(nodes.map(node => [node.index, node]));
+      const nextEdges = new Map();
+      const addedNodes = nodes.filter(node => !state.nodes.has(node.index));
+      const addedEdges = [];
       for (const node of nodes) {
         for (const target of state.view.targets(node.index)) {
-          if (!included.has(target)) continue;
-          edges.push({
+          if (!nextNodes.has(target)) continue;
+          const key = `${node.index}:${target}`;
+          const edge = state.edges.get(key) || {
             source: node.index,
             target,
             sourceLayout: node.layout,
-            targetLayout: state.view.layout(target),
-          });
+            targetLayout: nextNodes.get(target).layout,
+          };
+          nextEdges.set(key, edge);
+          if (!state.edges.has(key)) addedEdges.push(edge);
         }
       }
 
-      if (options.clear) options.clear(state.view);
-      if (nodes.length > 0) {
-        options.appendNodes(state.view, nodes, state.generation);
+      const removedNodes = [...state.nodes.values()].filter(
+        node => !nextNodes.has(node.index),
+      );
+      const removedEdges = [...state.edges.values()].filter(
+        edge => !nextEdges.has(`${edge.source}:${edge.target}`),
+      );
+      if (state.renderBounds === null && options.clear) options.clear(state.view);
+      if (removedEdges.length > 0) {
+        options.removeEdges(state.view, removedEdges, state.generation);
       }
-      if (edges.length > 0) {
-        options.appendEdges(state.view, edges, state.generation);
+      if (removedNodes.length > 0) {
+        options.removeNodes(state.view, removedNodes, state.generation);
       }
+      if (addedNodes.length > 0) {
+        options.appendNodes(state.view, addedNodes, state.generation);
+      }
+      if (addedEdges.length > 0) {
+        options.appendEdges(state.view, addedEdges, state.generation);
+      }
+      state.nodes = nextNodes;
+      state.edges = nextEdges;
       state.renderBounds = renderBounds;
       if (options.finalize) options.finalize(state.view, state.generation);
     }
@@ -472,6 +491,8 @@
         view,
         generation: activeGeneration,
         index: indexes.get(view),
+        nodes: new Map(),
+        edges: new Map(),
         renderBounds: null,
         pendingViewportBounds: null,
         frameQueued: false,
@@ -506,12 +527,12 @@
     return {start, update};
   }
 
-  const COMPACT_DATA_BASE = "E2_js_data/compact/";
+  const VIEWER_DATA_BASE = "data/";
 
   function viewerDataFilePath(dataFile) {
     if (/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(dataFile)) return dataFile;
-    if (dataFile.indexOf(COMPACT_DATA_BASE) === 0) return dataFile;
-    return COMPACT_DATA_BASE + dataFile.replace(/^\.\//, "");
+    if (dataFile.indexOf(VIEWER_DATA_BASE) === 0) return dataFile;
+    return VIEWER_DATA_BASE + dataFile.replace(/^\.\//, "");
   }
 
   function viewerManifestWithDataBase(manifest) {

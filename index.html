@@ -87,7 +87,7 @@ window.MathJax = {
     <a href="#AdamsCharts">Adams \(E_2\) Charts</a>
     </p>
 
-    <p><em>This homepage was last updated on Jun 1, 2026.</em></p>
+    <p><em>This homepage was last updated on <time datetime="2026-10-15">October 15, 2026</time>.</em></p>
 
     <center><h3>Academic Positions</h3></center>
     <ul class="info-list">
@@ -119,13 +119,13 @@ window.MathJax = {
     <p>My research program is organized around the following themes:</p>
 
     <ul>
-      <li><strong>Computational stable homotopy theory:</strong> Machine-assisted computation of Adams spectral sequences and stable homotopy groups of spheres at odd primes</li>
+      <li><strong>Computational stable homotopy theory:</strong> Computer-assisted computation of Adams spectral sequences and stable homotopy groups of spheres at odd primes</li>
       <li><strong>Spectral sequences:</strong> Development, explicit calculation, and applications of spectral sequences in homotopy theory</li>
       <li><strong>Higher structures:</strong> Model categories and higher algebraic structures in stable homotopy theory</li>
       <li><strong>Structured ring spectra:</strong> Homotopy theory of structured ring spectra and their applications</li>
     </ul>
 
-    <p><strong>Current focus:</strong> Developing computational frameworks for Adams spectral sequence calculations at odd primes, together with interactive visualization tools for exploring the structure of these spectral sequences.</p>
+    <p><strong>Current focus:</strong> Developing computer programs for Adams spectral sequence calculations at odd primes, together with interactive tools for exploring the results.</p>
 
     <hr>
     <center>
@@ -134,7 +134,7 @@ window.MathJax = {
     </center>
     <hr>
 
-    <p>This interactive visualization displays the Adams spectral sequence \(E_2\) page for the sphere spectrum \(S^0\) at odd primes. This is joint work in progress with Weinan Lin; the visualization will be updated as our work develops.</p>
+    <p>This interactive visualization displays the Adams spectral sequence \(E_2\) page for the sphere spectrum \(S^0\) at odd primes. The computations use computer programs developed jointly with Weinan Lin. This work is ongoing, and the charts will be updated as our research progresses.</p>
 
     <center>
       <a href="tools/adams-e2/unified_viewer.html" class="cta-button">
@@ -142,23 +142,57 @@ window.MathJax = {
       </a>
     </center>
 
+    <!-- Ranges from tools/adams-e2/data/manifest.v3.js (effectiveTMax). -->
+    <table class="chart-ranges">
+      <caption>Current computation ranges (October 2026)</caption>
+      <thead>
+        <tr>
+          <th scope="col">Prime \(p\)</th>
+          <th scope="col">Internal degree \(t\)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row"><a href="tools/adams-e2/unified_viewer.html?prime=3">\(p = 3\)</a></th>
+          <td>\(t \le 800\)</td>
+        </tr>
+        <tr>
+          <th scope="row"><a href="tools/adams-e2/unified_viewer.html?prime=5">\(p = 5\)</a></th>
+          <td>\(t \le 3{,}200\)</td>
+        </tr>
+        <tr>
+          <th scope="row"><a href="tools/adams-e2/unified_viewer.html?prime=7">\(p = 7\)</a></th>
+          <td>\(t \le 7{,}200\)</td>
+        </tr>
+        <tr>
+          <th scope="row"><a href="tools/adams-e2/unified_viewer.html?prime=11">\(p = 11\)</a></th>
+          <td>\(t \le 22{,}000\)</td>
+        </tr>
+        <tr>
+          <th scope="row"><a href="tools/adams-e2/unified_viewer.html?prime=13">\(p = 13\)</a></th>
+          <td>\(t \le 35{,}000\)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Choose a prime above to open its chart. These bounds refer to the internal degree \(t\); the charts plot the stem \(t-s\) horizontally and the Adams filtration \(s\) vertically.</p>
+
     <strong>Features:</strong>
     <ul>
       <li>Interactive zoom and pan navigation</li>
-      <li>Support for primes 3, 5, 7, 11, and 13</li>
-      <li>Visualization of product relationships with \(a_0\) and \(h_0\)</li>
+      <li>Canonical monomial labels for selected basis elements</li>
+      <li>Visualization of multiplication support by \(x_0\) and \(x_1\) (classically \(a_0\) and \(h_0\))</li>
     </ul>
 
     <strong>Visualization Guide:</strong>
     <ul>
       <li><strong>Bullets:</strong> Represent additive basis elements in the \(E_2\) page</li>
-      <li><strong>Lines:</strong> Show multiplication by \(a_0\) and \(h_0\) (only these products are displayed)</li>
+      <li><strong>Black lines:</strong> Show the combined multiplication support by \(x_0\) and \(x_1\); coefficients and multiplier labels are not displayed</li>
       <li><strong>Pan:</strong> Click and drag, or use arrow keys</li>
       <li><strong>Zoom:</strong> Mouse wheel, pinch gesture, or +/- keys</li>
-      <li><strong>Select element:</strong> Click on any bullet to see its products highlighted in green</li>
+      <li><strong>Select element:</strong> Click on any bullet to see its canonical monomial name and its product targets highlighted in green</li>
+      <li><strong>Clear selection:</strong> Click empty chart space or select a different prime</li>
     </ul>
-
-    <p><em>This visualization is based on machine-generated computational data produced by our ongoing research program.</em></p>
 
     <hr>
     <center>

@@ -69,8 +69,30 @@ svg {
     display: none;
 }
 
-#point_label .katex {
+#point_label_math {
+    font-family: "Times New Roman", Times, serif;
     font-size: 1.08em;
+}
+
+.monomial-factor {
+    display: inline-block;
+}
+
+.monomial-factor + .monomial-factor {
+    margin-left: 0.15em;
+}
+
+.monomial-scripts {
+    display: inline-block;
+    vertical-align: -0.35em;
+}
+
+.monomial-scripts > sup,
+.monomial-scripts > sub {
+    display: block;
+    height: 1em;
+    font-size: 0.7em;
+    line-height: 1;
 }
 
 .point-label-leader {
@@ -99,6 +121,21 @@ svg {
     border-radius: 4px;
     border: 1px solid #ccc;
     z-index: 100;
+}
+
+#load_status {
+    position: fixed;
+    top: 48px;
+    right: 5px;
+    max-width: calc(100vw - 32px);
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.96);
+    color: #333;
+    font: 14px/1.4 sans-serif;
+    z-index: 100;
+    pointer-events: none;
 }
 
 /* Style the prime selection dropdown */
@@ -161,23 +198,8 @@ svg {
     width: 250px; /* Fixed width for consistent appearance */
 }
 
-/* 
- * Style for potential secondary text in menu items
- * (Currently used for keyboard shortcuts or descriptions)
- */
-#div_menu a span {
-    color: #bcb1b3; /* Light gray for secondary information */
-    float: right;   /* Right-align secondary text */
-}
-
 /* Hover effect for menu items */
 #div_menu a:hover {
     color: #fff;
     background: #3879d9; /* Blue highlight on hover */
-}
-
-/* Menu separator line */
-#div_menu hr {
-    border: 1px solid #ebebeb; /* Very light gray line */
-    border-bottom: 0;          /* Remove default bottom border */
 }

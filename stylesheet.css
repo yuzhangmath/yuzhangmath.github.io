@@ -245,6 +245,40 @@ a.anchor {
     transform: translateY(-1px);
 }
 
+/* ===== ADAMS CHART RANGES ===== */
+
+.chart-ranges {
+    width: 100%;
+    max-width: 32rem;
+    margin: 24px auto;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+}
+
+.chart-ranges caption {
+    margin-bottom: 12px;
+    color: #2c3e50;
+    font-weight: 600;
+    text-align: left;
+}
+
+.chart-ranges th,
+.chart-ranges td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.chart-ranges thead {
+    background: #f8fafc;
+    color: #2c3e50;
+}
+
+.chart-ranges a {
+    display: inline-block;
+    padding: 2px 0;
+}
+
 /* ===== HIGHLIGHT BOX (kept for potential future use) ===== */
 
 .highlight-box {
