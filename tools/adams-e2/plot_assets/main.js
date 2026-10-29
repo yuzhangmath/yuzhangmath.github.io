@@ -211,6 +211,7 @@ const camera = {
     // Apply current transform to the plot group
     setTransform: function () {
         g_plot.setAttribute("transform", "translate(" + this.o_svg.x + "," + this.o_svg.y + ") scale(" + this.unit_svg + ")");
+        updateInteractionPositions();
         schedulePointLabelPosition(false);
     }
 };
@@ -230,10 +231,12 @@ function scheduleCameraUpdate() {
 
 // SVG and group elements for the visualization
 var svg_ss, g_svg, g_plot, g_bullets, g_strtlines, g_xaxis, g_yaxis;
-var circle_mouseon, rect_selected, g_prod, div_menu_style;
+var svg_marks_below, svg_marks_above, point_marker_bounds;
+var rect_selected, circle_selected, circle_mouseon, g_prod, div_menu_style;
 var point_label, point_label_math, point_label_leader, div_menubar;
 var load_status;
 var bullet_selected = null;
+var bullet_hovered = null;
 var POINT_LABEL_STATE = {
     generation: 0,
     frame: null,
@@ -248,6 +251,9 @@ var POINT_LABEL_STATE = {
 // Initialize references to DOM elements
 function initializeElements() {
     svg_ss = document.getElementById("svg_ss");
+    svg_marks_below = document.getElementById("svg_marks_below");
+    svg_marks_above = document.getElementById("svg_marks_above");
+    point_marker_bounds = document.getElementById("point_marker_bounds");
     g_svg = document.getElementById("g_svg");
     g_plot = document.getElementById("g_plot");
     
@@ -256,8 +262,9 @@ function initializeElements() {
     g_strtlines = document.getElementById("g_strtlines");
     g_xaxis = document.getElementById("g_xaxis");
     g_yaxis = document.getElementById("g_yaxis");
-    circle_mouseon = document.getElementById("circle_mouseon");
     rect_selected = document.getElementById("rect_selected");
+    circle_selected = document.getElementById("circle_selected");
+    circle_mouseon = document.getElementById("circle_mouseon");
     g_prod = document.getElementById("g_prod");
     point_label = document.getElementById("point_label");
     point_label_math = document.getElementById("point_label_math");
@@ -267,21 +274,31 @@ function initializeElements() {
     div_menu_style = document.getElementById("div_menu").style;
     
     // Set up SVG dimensions and coordinate system
-    svg_ss.setAttribute("width", window.innerWidth);
-    svg_ss.setAttribute("height", window.innerHeight);
+    sizeChartLayers();
     g_svg.setAttribute("transform", "translate(0," + window.innerHeight + ") scale(1,-1)"); // Flip y-axis
 }
 
 // Handle window resize events
 function windowResize() {
-    svg_ss.setAttribute("width", window.innerWidth);
-    svg_ss.setAttribute("height", window.innerHeight);
+    sizeChartLayers();
     g_svg.setAttribute("transform", "translate(0," + window.innerHeight + ") scale(1,-1)");
     // Update dynamic config based on new window size
     CONFIG_DYNAMIC.camera_unit_screen_min = (window.innerWidth - CONFIG.margin_x) / (CONFIG.x_max + 1);
     CONFIG_DYNAMIC.camera_unit_screen_max = Math.min(window.innerWidth, window.innerHeight) - 30;
     scheduleCameraUpdate();
     schedulePointLabelPosition(true);
+}
+
+function sizeChartLayers() {
+    for (const svg of [svg_ss, svg_marks_below, svg_marks_above]) {
+        svg.setAttribute("width", window.innerWidth);
+        svg.setAttribute("height", window.innerHeight);
+    }
+    // Upper markers must not cover the axis margins. The leader can enter them.
+    point_marker_bounds.setAttribute("x", CONFIG.margin_x);
+    point_marker_bounds.setAttribute("y", 0);
+    point_marker_bounds.setAttribute("width", Math.max(0, window.innerWidth - CONFIG.margin_x));
+    point_marker_bounds.setAttribute("height", Math.max(0, window.innerHeight - CONFIG.margin_y));
 }
 
 /* ===== AXIS AND GRID SYSTEM ===== */
@@ -493,6 +510,35 @@ function screenLayout(index) {
     };
 }
 
+function positionScreenCircle(circle, layout, radiusFactor) {
+    circle.setAttribute("cx", layout.x);
+    circle.setAttribute("cy", layout.y);
+    circle.setAttribute("r", layout.radius * radiusFactor);
+}
+
+function updateInteractionPositions() {
+    if (bullet_selected !== null) {
+        const index = Number(bullet_selected.dataset.i);
+        const layout = ACTIVE_VIEW.layout(index);
+        const corner = camera.flip(camera.world2svg(new Vector(
+            Math.round(layout.x) - 0.5, Math.round(layout.y) + 0.5
+        )));
+        rect_selected.setAttribute("x", corner.x);
+        rect_selected.setAttribute("y", corner.y);
+        rect_selected.setAttribute("width", camera.unit_svg);
+        rect_selected.setAttribute("height", camera.unit_svg);
+        positionScreenCircle(circle_selected, screenLayout(index), 1);
+        for (const circle of g_prod.children) {
+            positionScreenCircle(circle, screenLayout(Number(circle.dataset.i)), 1.7);
+        }
+    }
+    if (bullet_hovered !== null) {
+        const layout = screenLayout(Number(bullet_hovered.dataset.i));
+        positionScreenCircle(circle_mouseon, layout, 1.15);
+        circle_mouseon.setAttribute("stroke-width", layout.radius * 0.3);
+    }
+}
+
 function pointLabelBounds() {
     const padding = CONFIG.point_label_viewport_padding;
     const left = CONFIG.margin_x + padding;
@@ -558,8 +604,10 @@ function pointLabelObstacles(selection, anchor, labelSize) {
 
     const segmentObstacles = [];
     for (const line of g_strtlines.children) {
-        const sourceLayout = screenLayouts.get(Number(line.dataset.source));
-        const targetLayout = screenLayouts.get(Number(line.dataset.target));
+        const source = Number(line.dataset.source);
+        const target = Number(line.dataset.target);
+        const sourceLayout = screenLayouts.get(source) || screenLayout(source);
+        const targetLayout = screenLayouts.get(target) || screenLayout(target);
         const width = Math.min(
             sourceLayout.worldRadius,
             targetLayout.worldRadius
@@ -787,35 +835,22 @@ function getSelectionLifecycle() {
     if (SELECTION_LIFECYCLE === null) {
         SELECTION_LIFECYCLE = RENDER_CORE.createSelectionLifecycle({
             clear(selection) {
-                if (selection !== null) selection.node.removeAttribute("fill");
                 bullet_selected = null;
-                rect_selected.setAttribute("x", "-1000");
-                rect_selected.setAttribute("y", "-1000");
+                rect_selected.style.display = "none";
+                circle_selected.style.display = "none";
                 g_prod.replaceChildren();
                 hidePointLabel();
             },
             show(selection) {
                 bullet_selected = selection.node;
-                bullet_selected.setAttribute("fill", "red");
-                rect_selected.setAttribute(
-                    "x",
-                    Math.round(bullet_selected.getAttribute("cx")) - 0.5
-                );
-                rect_selected.setAttribute(
-                    "y",
-                    Math.round(bullet_selected.getAttribute("cy")) - 0.5
-                );
+                circle_selected.dataset.i = selection.index;
 
                 for (const target of selection.targets) {
-                    const layout = ACTIVE_VIEW.layout(target);
                     const circle = document.createElementNS(
                         "http://www.w3.org/2000/svg",
                         "circle"
                     );
                     circle.setAttribute("class", "p product-target");
-                    circle.setAttribute("cx", layout.x);
-                    circle.setAttribute("cy", layout.y);
-                    circle.setAttribute("r", layout.r * 1.7);
                     circle.setAttribute("fill", "green");
                     circle.setAttribute("opacity", "0.7");
                     circle.dataset.key = ACTIVE_VIEW.key;
@@ -823,6 +858,9 @@ function getSelectionLifecycle() {
                     g_prod.appendChild(circle);
                 }
 
+                updateInteractionPositions();
+                rect_selected.style.display = "";
+                circle_selected.style.display = "";
                 showPointLabel(selection);
             },
         });
@@ -882,17 +920,16 @@ function on_key_down(event) {
 
 /* ===== BULLET HOVER EFFECTS ===== */
 
-// Show highlight circle when hovering over a bullet
+// Hover changes only the separate annotation layer, never the chart SVG.
 function on_pointerenter_bullet(event) {
-    let tgt = event.target;
-    circle_mouseon.setAttribute("cx", tgt.getAttribute("cx"));
-    circle_mouseon.setAttribute("cy", tgt.getAttribute("cy"));
-    circle_mouseon.setAttribute("r", Number(tgt.getAttribute("r")) * 1.3); // Slightly larger than bullet
+    bullet_hovered = event.target;
+    updateInteractionPositions();
+    circle_mouseon.style.display = "";
 }
 
-// Hide highlight circle when leaving bullet
-function on_pointerleave_bullet(event) {
-    circle_mouseon.setAttribute("cx", "-1000"); // Move off-screen
+function on_pointerleave_bullet() {
+    bullet_hovered = null;
+    circle_mouseon.style.display = "none";
 }
 
 /* ===== CUSTOM MODAL SYSTEM ===== */
@@ -1108,12 +1145,12 @@ function showHelp() {
 
 // Set up all event listeners
 function initHandlers() {
-    if (navigator.userAgent.match("Windows") || navigator.userAgent.match("Macintosh")) {
-        g_bullets.addEventListener("pointerover", function(event) {
-            if (event.target.classList.contains("b")) on_pointerenter_bullet(event);
-        });
-        g_bullets.addEventListener("pointerout", on_pointerleave_bullet);
-    }
+    g_bullets.addEventListener("pointerover", function(event) {
+        if (event.target.classList.contains("b")) on_pointerenter_bullet(event);
+    });
+    g_bullets.addEventListener("pointerout", function(event) {
+        if (event.target.classList.contains("b")) on_pointerleave_bullet(event);
+    });
     svg_ss.addEventListener("wheel", on_wheel);
     svg_ss.addEventListener("pointerdown", on_pointerdown);
     svg_ss.addEventListener("pointermove", on_pointermove);
@@ -1139,11 +1176,11 @@ function initHandlers() {
 // Clear all plotted elements from the visualization
 function clearPlot() {
     clearSelection();
+    on_pointerleave_bullet();
     g_bullets.innerHTML = "";
     g_strtlines.innerHTML = "";
     RENDERED_NODES.clear();
     RENDERED_EDGES.clear();
-    circle_mouseon.setAttribute("cx", "-1000");
 }
 
 function appendRenderedNodes(view, nodes) {
@@ -1163,10 +1200,19 @@ function appendRenderedNodes(view, nodes) {
 }
 
 function appendRenderedEdges(view, edges) {
+    // Safari can omit tiny world-unit strokes even when zoom makes them visible.
+    // Draw in larger, source-relative units and transform back to world space.
+    const lineUnits = 1024;
     let linesHTML = "";
     for (const edge of edges) {
-        const width = Math.min(edge.sourceLayout.r, edge.targetLayout.r) / 4;
-        linesHTML += '<line class="sl" data-key="' + view.key + '" data-source="' + edge.source + '" data-target="' + edge.target + '" x1="' + edge.sourceLayout.x + '" y1="' + edge.sourceLayout.y + '" x2="' + edge.targetLayout.x + '" y2="' + edge.targetLayout.y + '" stroke="black" stroke-width="' + width + '"> </line>';
+        const source = edge.sourceLayout;
+        const target = edge.targetLayout;
+        const width = Math.min(source.r, target.r) * lineUnits / 4;
+        const x2 = (target.x - source.x) * lineUnits;
+        const y2 = (target.y - source.y) * lineUnits;
+        linesHTML += '<line class="sl" data-key="' + view.key + '" data-source="' + edge.source + '" data-target="' + edge.target +
+            '" transform="translate(' + source.x + ',' + source.y + ') scale(' + (1 / lineUnits) + ')" x1="0" y1="0" x2="' + x2 + '" y2="' + y2 +
+            '" stroke="black" stroke-width="' + width + '"> </line>';
     }
     if (linesHTML) {
         g_strtlines.insertAdjacentHTML("beforeend", linesHTML);
@@ -1183,10 +1229,10 @@ function removeRenderedNodes(view, nodes) {
     const selection = getSelectionLifecycle().current();
     for (const node of nodes) {
         if (selection !== null && selection.index === node.index) clearSelection();
+        if (RENDERED_NODES.get(node.index) === bullet_hovered) on_pointerleave_bullet();
         RENDERED_NODES.get(node.index).remove();
         RENDERED_NODES.delete(node.index);
     }
-    circle_mouseon.setAttribute("cx", "-1000");
 }
 
 function removeRenderedEdges(view, edges) {
@@ -1374,6 +1420,10 @@ async function loadPrimeData(prime, initialUrlParams) {
 
         const renderGeneration = RENDER_GENERATIONS.begin(view.key);
 
+        // The previous chart remains interactive while its replacement loads.
+        // Retire those indices before the new camera positions annotations.
+        if (bullet_selected !== null) clearSelection();
+        if (bullet_hovered !== null) on_pointerleave_bullet();
         ACTIVE_VIEW = view;
         PRIME_REQUEST_STATE.commit(prime);
         CURRENT_PRIME = prime;

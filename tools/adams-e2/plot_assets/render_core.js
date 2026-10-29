@@ -383,26 +383,45 @@
 
   function createHorizontalSpatialIndex(view, bucketWidth) {
     const buckets = new Map();
+    let maximumEdgeX = 0;
+    let maximumEdgeY = 0;
     for (let index = 0; index < view.count; index += 1) {
-      const bucket = Math.floor(view.layout(index).x / bucketWidth);
+      const layout = view.layout(index);
+      const bucket = Math.floor(layout.x / bucketWidth);
       if (!buckets.has(bucket)) buckets.set(bucket, []);
       buckets.get(bucket).push(index);
+      for (const target of view.targets(index)) {
+        const targetLayout = view.layout(target);
+        maximumEdgeX = Math.max(maximumEdgeX, Math.abs(targetLayout.x - layout.x));
+        maximumEdgeY = Math.max(maximumEdgeY, Math.abs(targetLayout.y - layout.y));
+      }
     }
 
     return {
       query(bounds) {
         const nodes = [];
-        const firstBucket = Math.floor(bounds.xMin / bucketWidth);
-        const lastBucket = Math.floor(bounds.xMax / bucketWidth);
+        const edgeSources = [];
+        // A visible segment can have either or both endpoint dots offscreen.
+        const sourceBounds = {
+          xMin: bounds.xMin - maximumEdgeX,
+          xMax: bounds.xMax + maximumEdgeX,
+          yMin: bounds.yMin - maximumEdgeY,
+          yMax: bounds.yMax + maximumEdgeY,
+        };
+        const firstBucket = Math.floor(sourceBounds.xMin / bucketWidth);
+        const lastBucket = Math.floor(sourceBounds.xMax / bucketWidth);
         for (let bucket = firstBucket; bucket <= lastBucket; bucket += 1) {
           for (const index of buckets.get(bucket) || []) {
             const layout = view.layout(index);
+            if (!layoutIsInsideBounds(layout, sourceBounds)) continue;
+            const node = {index, layout};
+            edgeSources.push(node);
             if (layoutIsInsideBounds(layout, bounds)) {
-              nodes.push({index, layout});
+              nodes.push(node);
             }
           }
         }
-        return nodes;
+        return {nodes, edgeSources};
       },
     };
   }
@@ -437,20 +456,32 @@
     function render(state, viewportBounds) {
       if (active !== state || !generations.isActive(state.generation)) return;
       const renderBounds = expandBounds(viewportBounds, bufferFactor);
-      const nodes = state.index.query(renderBounds);
+      const {nodes, edgeSources} = state.index.query(renderBounds);
       const nextNodes = new Map(nodes.map(node => [node.index, node]));
       const nextEdges = new Map();
       const addedNodes = nodes.filter(node => !state.nodes.has(node.index));
       const addedEdges = [];
-      for (const node of nodes) {
+      const renderRect = {
+        left: renderBounds.xMin,
+        top: renderBounds.yMin,
+        width: renderBounds.xMax - renderBounds.xMin,
+        height: renderBounds.yMax - renderBounds.yMin,
+      };
+      for (const node of edgeSources) {
         for (const target of state.view.targets(node.index)) {
-          if (!nextNodes.has(target)) continue;
+          const targetLayout = state.view.layout(target);
+          if (!segmentIntersectsRect({
+            x1: node.layout.x,
+            y1: node.layout.y,
+            x2: targetLayout.x,
+            y2: targetLayout.y,
+          }, renderRect)) continue;
           const key = `${node.index}:${target}`;
           const edge = state.edges.get(key) || {
             source: node.index,
             target,
             sourceLayout: node.layout,
-            targetLayout: nextNodes.get(target).layout,
+            targetLayout,
           };
           nextEdges.set(key, edge);
           if (!state.edges.has(key)) addedEdges.push(edge);

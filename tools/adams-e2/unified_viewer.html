@@ -28,10 +28,15 @@
 </head>
 
 <body>
+  <!-- Interaction graphics have their own composited layers. Updating them
+       must not invalidate the chart's transformed SVG dots and lines. -->
+  <svg id="svg_marks_below" class="chart-marks" aria-hidden="true">
+    <rect id="rect_selected" fill="red" opacity="0.1" style="display:none" />
+    <g id="g_prod" fill="green"></g>
+  </svg>
   <!-- 
    * MAIN SVG CANVAS:
-   * The entire visualization happens within this SVG element.
-   * All mathematical elements (bullets, lines, grid) are SVG children.
+   * The dots, structure lines, grid, and axes live in this stable SVG layer.
    * Dimensions are set dynamically by JavaScript to fill the viewport.
    -->
   <svg id="svg_ss">
@@ -53,20 +58,11 @@
        -->
       <g id="g_plot">
         
-        <!-- Selection rectangle - highlights currently selected bullet -->
-        <rect id="rect_selected" x="-1000" y="-1000" width="1" height="1" fill="red" opacity="0.1" />
-        
         <!-- Grid lines - background coordinate reference -->
         <g id="g_grid" stroke-width="0.009" stroke="grey"></g>
         
         <!-- Structure lines - product relationships between bullets -->
         <g id="g_strtlines" fill="transparent"></g>
-        
-        <!-- Product highlights - green circles showing results of selected bullet's products -->
-        <g id="g_prod" fill="green"></g>
-        
-        <!-- Mouse hover effect - grey circle that follows mouse over bullets -->
-        <circle id="circle_mouseon" cx="-1000" cy="-1000" r="0" fill="grey"></circle>
         
         <!-- Main generators -->
         <g id="g_bullets_black" fill="black"></g>
@@ -94,6 +90,17 @@
       <!-- Y-axis labels group - for s coordinate labels -->
       <g id="g_yaxis" text-anchor="end" unselectable="on" onselectstart="return false;" onmousedown="return false;"
         transform="scale(1,-1)"></g>
+    </g>
+  </svg>
+  <svg id="svg_marks_above" class="chart-marks" aria-hidden="true">
+    <defs>
+      <clipPath id="point_marker_clip" clipPathUnits="userSpaceOnUse">
+        <rect id="point_marker_bounds" />
+      </clipPath>
+    </defs>
+    <g clip-path="url(#point_marker_clip)">
+      <circle id="circle_selected" fill="red" style="display:none" />
+      <circle id="circle_mouseon" fill="none" stroke="grey" style="display:none" />
     </g>
     <line
       id="point_label_leader"

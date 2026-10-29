@@ -45,6 +45,17 @@ svg {
     left: 0;
 }
 
+#svg_ss, .chart-marks {
+    /* Keep annotation repaints separate from the large transformed chart. */
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+.chart-marks {
+    position: fixed;
+    pointer-events: none;
+}
+
 #point_label {
     position: fixed;
     left: 0;
